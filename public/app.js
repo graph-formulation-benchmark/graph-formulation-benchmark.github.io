@@ -118,10 +118,10 @@
   function initStaticControls() {
     fillSelect(document.querySelector("[name=direction]"), ["Directed", "Undirected", "Unclear"]);
     fillSelect(document.querySelector("[name=weighting]"), ["Weighted", "Unweighted", "Unclear"]);
-    const timeOptions = state.schema.time_model?.options || ["Static", "Dynamic/Temporal", "Unclear"];
+    const timeOptions = state.schema.time_model?.options || ["Static", "Dynamic", "Unclear"];
     fillSelect(document.querySelector("[name=time_model]"), timeOptions);
 
-    const ops = state.schema.allowed_operations?.options || [];
+    const ops = state.schema.operations?.options || state.schema.allowed_operations?.options || [];
     const box = $("#operationsBox");
     box.innerHTML = "";
     ops.forEach((op) => {
@@ -146,7 +146,7 @@
       time_model: "",
       node_meaning: "",
       edge_meaning: "",
-      graph_model_evidence: "",
+      trace: "",
       graph_model_confidence: "",
       allowed_operations: [],
       active_objectives: [],
@@ -237,7 +237,7 @@
     form.time_model.value = response.time_model || "";
     form.node_meaning.value = response.node_meaning || "";
     form.edge_meaning.value = response.edge_meaning || "";
-    form.graph_model_evidence.value = response.graph_model_evidence || "";
+    form.trace.value = response.trace || response.graph_model_evidence || "";
     form.graph_model_confidence.value = response.graph_model_confidence || "";
     form.alternative_formulation_exists.value = response.alternative_formulation_exists || "";
     form.alternative_formulation_description.value = response.alternative_formulation_description || "";
@@ -288,7 +288,7 @@
     response.time_model = form.time_model.value;
     response.node_meaning = form.node_meaning.value;
     response.edge_meaning = form.edge_meaning.value;
-    response.graph_model_evidence = form.graph_model_evidence.value;
+    response.trace = form.trace.value;
     response.graph_model_confidence = form.graph_model_confidence.value;
     response.allowed_operations = Array.from(document.querySelectorAll("[name=allowed_operations]:checked")).map((x) => x.value);
     response.active_objectives = collectObjectives();
@@ -304,7 +304,29 @@
     const copy = { ...response };
     delete copy.submitted;
     delete copy.submitted_at;
+    copy.graph_model = {
+      property_tags: [copy.direction, copy.weighting, copy.time_model].filter((value) => value && value !== "Unclear"),
+      node_meaning: splitMeaning(copy.node_meaning),
+      edge_meaning: splitMeaning(copy.edge_meaning)
+    };
+    copy.operations = copy.allowed_operations || [];
+    copy.identified_objectives = (copy.active_objectives || []).map((obj) => ({
+      objective_id: obj.objective_id || obj.l2_id || "",
+      action: obj.action || "",
+      object_level: obj.object_level || ""
+    })).filter((obj) => obj.objective_id || obj.action || obj.object_level);
+    copy.trace = copy.trace || copy.graph_model_evidence || "";
     return copy;
+  }
+
+  function splitMeaning(value) {
+    if (Array.isArray(value)) {
+      return value.map((x) => String(x).trim()).filter(Boolean);
+    }
+    return String(value || "")
+      .split(/\n|;/)
+      .map((x) => x.trim())
+      .filter(Boolean);
   }
 
   async function submitCurrentItem() {

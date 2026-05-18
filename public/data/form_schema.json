@@ -91,7 +91,7 @@
     "type": "single_choice",
     "options": [
       "Static",
-      "Dynamic/Temporal",
+      "Dynamic",
       "Unclear"
     ]
   },
@@ -103,9 +103,9 @@
     "type": "string",
     "prompt": "What does one edge or relationship represent?"
   },
-  "graph_model_evidence": {
-    "type": "list_of_strings",
-    "prompt": "Short story phrases supporting the node meaning, edge meaning, and graph tags."
+  "trace": {
+    "type": "string",
+    "prompt": "Concise evidence: quote short phrases and state the inference behind the graph model and objectives."
   },
   "graph_model_confidence": {
     "type": "integer",
@@ -181,6 +181,20 @@
         "max": 5
       }
     }
+  },
+  "identified_objectives": {
+    "type": "alias",
+    "source": "active_objectives"
+  },
+  "operations": {
+    "type": "multi_choice",
+    "options": [
+      "ModifyEdges",
+      "ModifyNodes",
+      "ModifyWeights"
+    ],
+    "options_source": "operation_definitions.md",
+    "allow_other": true
   },
   "allowed_operations": {
     "type": "multi_choice",
