@@ -144,6 +144,10 @@
       direction: "",
       weighting: "",
       time_model: "",
+      node_meaning: "",
+      edge_meaning: "",
+      graph_model_evidence: "",
+      graph_model_confidence: "",
       allowed_operations: [],
       active_objectives: [],
       alternative_formulation_exists: "",
@@ -231,6 +235,10 @@
     form.direction.value = response.direction || "";
     form.weighting.value = response.weighting || "";
     form.time_model.value = response.time_model || "";
+    form.node_meaning.value = response.node_meaning || "";
+    form.edge_meaning.value = response.edge_meaning || "";
+    form.graph_model_evidence.value = response.graph_model_evidence || "";
+    form.graph_model_confidence.value = response.graph_model_confidence || "";
     form.alternative_formulation_exists.value = response.alternative_formulation_exists || "";
     form.alternative_formulation_description.value = response.alternative_formulation_description || "";
     form.overall_confidence.value = response.overall_confidence || "";
@@ -278,6 +286,10 @@
     response.direction = form.direction.value;
     response.weighting = form.weighting.value;
     response.time_model = form.time_model.value;
+    response.node_meaning = form.node_meaning.value;
+    response.edge_meaning = form.edge_meaning.value;
+    response.graph_model_evidence = form.graph_model_evidence.value;
+    response.graph_model_confidence = form.graph_model_confidence.value;
     response.allowed_operations = Array.from(document.querySelectorAll("[name=allowed_operations]:checked")).map((x) => x.value);
     response.active_objectives = collectObjectives();
     response.alternative_formulation_exists = form.alternative_formulation_exists.value;

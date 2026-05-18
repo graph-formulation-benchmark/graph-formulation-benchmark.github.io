@@ -95,6 +95,23 @@
       "Unclear"
     ]
   },
+  "node_meaning": {
+    "type": "string",
+    "prompt": "What does one node represent in this story?"
+  },
+  "edge_meaning": {
+    "type": "string",
+    "prompt": "What does one edge or relationship represent?"
+  },
+  "graph_model_evidence": {
+    "type": "list_of_strings",
+    "prompt": "Short story phrases supporting the node meaning, edge meaning, and graph tags."
+  },
+  "graph_model_confidence": {
+    "type": "integer",
+    "min": 1,
+    "max": 5
+  },
   "active_objectives": {
     "type": "list",
     "item_schema": {

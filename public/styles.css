@@ -198,6 +198,15 @@ button.primary, #submitBtn {
   gap: 12px;
 }
 
+.meaningGrid {
+  margin-top: 12px;
+}
+
+.compactNumber {
+  max-width: 240px;
+  margin-top: 12px;
+}
+
 label {
   display: grid;
   gap: 6px;
@@ -302,4 +311,3 @@ textarea {
     flex-direction: column;
   }
 }
-

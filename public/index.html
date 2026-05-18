@@ -52,6 +52,20 @@
               <label>Weighting <select name="weighting"></select></label>
               <label>Time model <select name="time_model"></select></label>
             </div>
+            <div class="controlGrid meaningGrid">
+              <label>Node meaning
+                <textarea name="node_meaning" rows="3" placeholder="What does one node represent in this story?"></textarea>
+              </label>
+              <label>Edge meaning
+                <textarea name="edge_meaning" rows="3" placeholder="What does one edge or relationship represent?"></textarea>
+              </label>
+            </div>
+            <label>Graph-model evidence
+              <textarea name="graph_model_evidence" rows="3" placeholder="Paste short phrases that support the node/edge meaning and graph tags."></textarea>
+            </label>
+            <label class="compactNumber">Graph-model confidence
+              <input name="graph_model_confidence" type="number" min="1" max="5" step="1" />
+            </label>
           </section>
 
           <section>
@@ -123,4 +137,3 @@
     <script src="app.js"></script>
   </body>
 </html>
-
