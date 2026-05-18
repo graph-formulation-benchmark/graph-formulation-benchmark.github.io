@@ -52,6 +52,8 @@ The org Pages repository is public, so token-named assignment JSON files are not
 
 The public app includes only form options. Hidden keys, provider/status provenance, assignment tokens, and story packets are not committed into the public org Pages repository.
 
+Assignment lookup uses the `get_survey_assignment(request_token_hash text)` Supabase RPC so direct public table reads do not expose all assignment packets.
+
 The app keeps local autosave drafts and submits completed items to `blind_recovery_responses`. Experts can still export JSONL as a backup after the assignment loads.
 
 ## Deploy To GitHub Pages

@@ -31,18 +31,24 @@ alter table blind_recovery_responses enable row level security;
 alter table survey_assignments enable row level security;
 
 drop policy if exists allow_valid_token_assignment_selects on survey_assignments;
-create policy allow_valid_token_assignment_selects
-on survey_assignments
-for select
-to anon
-using (
-  active = true
-  and exists (
-    select 1 from study_tokens
-    where study_tokens.token_hash = survey_assignments.token_hash
-      and study_tokens.active = true
-  )
-);
+
+create or replace function get_survey_assignment(request_token_hash text)
+returns jsonb
+language sql
+stable
+security definer
+set search_path = public
+as $$
+  select sa.assignment_json
+  from survey_assignments sa
+  join study_tokens st on st.token_hash = sa.token_hash
+  where sa.token_hash = request_token_hash
+    and sa.active = true
+    and st.active = true
+  limit 1
+$$;
+
+grant execute on function get_survey_assignment(text) to anon;
 
 drop policy if exists allow_valid_token_inserts on blind_recovery_responses;
 create policy allow_valid_token_inserts

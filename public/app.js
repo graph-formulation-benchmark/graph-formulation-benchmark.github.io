@@ -101,19 +101,16 @@
       if (!state.supabase) {
         throw new Error("Supabase is required for this survey link but is not configured yet.");
       }
-      const { data, error } = await state.supabase
-        .from("survey_assignments")
-        .select("assignment_json")
-        .eq("token_hash", state.tokenHash)
-        .eq("active", true)
-        .single();
+      const { data, error } = await state.supabase.rpc("get_survey_assignment", {
+        request_token_hash: state.tokenHash
+      });
       if (error) {
         throw new Error(`Could not load assignment for this token: ${error.message}`);
       }
-      if (!data || !data.assignment_json) {
+      if (!data) {
         throw new Error("No active assignment was found for this token.");
       }
-      return data.assignment_json;
+      return data;
     }
     return fetchJson(`data/assignments/${state.token}.json`);
   }
