@@ -1,0 +1,7 @@
+private/assignment_tokens.csv
+private/supabase_seed_assignments.sql
+private/supabase_seed_tokens.sql
+public/data/assignments/*.json
+__pycache__/
+*.py[cod]
+.DS_Store

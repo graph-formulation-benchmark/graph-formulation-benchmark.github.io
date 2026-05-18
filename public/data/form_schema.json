@@ -1,0 +1,192 @@
+{
+  "objective_taxonomy": [
+    {
+      "id": "OBJ_001",
+      "name": "connectivityOf",
+      "definition": "Refers to the ability to traverse the network; focuses on reachability and the existence of paths rather than resilience."
+    },
+    {
+      "id": "OBJ_002",
+      "name": "robustnessOf",
+      "definition": "Refers to the network's ability to maintain its structural integrity and function when nodes or edges are removed or fail."
+    },
+    {
+      "id": "OBJ_003",
+      "name": "centralityOf",
+      "definition": "Measures the relative importance, influence, or structural prominence of a specific entity within the network topology."
+    },
+    {
+      "id": "OBJ_004",
+      "name": "densityOf",
+      "definition": "Measures the ratio of actual edges present in the object relative to the maximum possible number of edges."
+    },
+    {
+      "id": "OBJ_005",
+      "name": "cohesivenessOf",
+      "definition": "Focuses on the internal strength and bonding of a single group; measures how tightly-knit and difficult to separate the object is."
+    },
+    {
+      "id": "OBJ_006",
+      "name": "clusteringOf",
+      "definition": "Measures the tendency for nodes to form dense local neighborhoods or triangles (triadic closure)."
+    },
+    {
+      "id": "OBJ_007",
+      "name": "sizeOf",
+      "definition": "Quantifies the magnitude of the object, typically defined by the count of its nodes (order) or edges."
+    },
+    {
+      "id": "OBJ_008",
+      "name": "modularityOf",
+      "definition": "Measures the quality of a specific partition of the network; compares the density of intra-community links to what would be expected in a random network."
+    },
+    {
+      "id": "OBJ_009",
+      "name": "balanceOf",
+      "definition": "Measures how evenly structural load or connectivity is distributed across the graph, aiming to avoid concentration in a few nodes or links."
+    },
+    {
+      "id": "OBJ_010",
+      "name": "assortativityOf",
+      "definition": "Measures the tendency of nodes to connect to other similar nodes based on an attribute like degree (homophily)."
+    },
+    {
+      "id": "OBJ_011",
+      "name": "hierarchyOf",
+      "definition": "Measures the extent to which the object displays a stratified, flow-oriented, or tree-like structure with inherent directionality."
+    },
+    {
+      "id": "OBJ_012",
+      "name": "distanceBetween",
+      "definition": "Measures the length of the shortest path (geodesic) connecting two specific objects."
+    },
+    {
+      "id": "OBJ_013",
+      "name": "connectivityBetween",
+      "definition": "Refers to the number, capacity, or resilience of paths between two objects; determines how well-connected they are rather than just how far apart they are."
+    },
+    {
+      "id": "OBJ_014",
+      "name": "similarityBetween",
+      "definition": "Measures the degree to which two objects exhibit structural or role equivalence; determines whether entities behave similarly within the topology."
+    }
+  ],
+  "direction": {
+    "type": "single_choice",
+    "options": [
+      "Directed",
+      "Undirected",
+      "Unclear"
+    ]
+  },
+  "weighting": {
+    "type": "single_choice",
+    "options": [
+      "Weighted",
+      "Unweighted",
+      "Unclear"
+    ]
+  },
+  "time_model": {
+    "type": "single_choice",
+    "options": [
+      "Static",
+      "Dynamic",
+      "Temporal",
+      "Unclear"
+    ]
+  },
+  "active_objectives": {
+    "type": "list",
+    "item_schema": {
+      "objective_id": {
+        "type": "single_choice",
+        "options": [
+          "OBJ_001",
+          "OBJ_002",
+          "OBJ_003",
+          "OBJ_004",
+          "OBJ_005",
+          "OBJ_006",
+          "OBJ_007",
+          "OBJ_008",
+          "OBJ_009",
+          "OBJ_010",
+          "OBJ_011",
+          "OBJ_012",
+          "OBJ_013",
+          "OBJ_014"
+        ]
+      },
+      "l2_id": {
+        "type": "single_choice",
+        "options": [
+          "OBJ_001",
+          "OBJ_002",
+          "OBJ_003",
+          "OBJ_004",
+          "OBJ_005",
+          "OBJ_006",
+          "OBJ_007",
+          "OBJ_008",
+          "OBJ_009",
+          "OBJ_010",
+          "OBJ_011",
+          "OBJ_012",
+          "OBJ_013",
+          "OBJ_014"
+        ]
+      },
+      "action": {
+        "type": "single_choice",
+        "options": [
+          "Promote",
+          "Reduce",
+          "Unclear"
+        ]
+      },
+      "object_level": {
+        "type": "single_choice",
+        "options": [
+          "Whole graph",
+          "Subgraph",
+          "Node",
+          "Edge",
+          "Pair of nodes",
+          "Unclear"
+        ]
+      },
+      "evidence_spans": {
+        "type": "list_of_strings"
+      },
+      "confidence": {
+        "type": "integer",
+        "min": 1,
+        "max": 5
+      }
+    }
+  },
+  "allowed_operations": {
+    "type": "multi_choice",
+    "options": [
+      "ModifyEdges",
+      "ModifyNodes",
+      "ModifyWeights"
+    ],
+    "options_source": "operation_definitions.md",
+    "allow_other": true
+  },
+  "alternative_formulation_exists": {
+    "type": "single_choice",
+    "options": [
+      "Yes",
+      "No",
+      "Unsure"
+    ]
+  },
+  "overall_confidence": {
+    "type": "integer",
+    "min": 1,
+    "max": 5
+  }
+}

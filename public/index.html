@@ -1,0 +1,126 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Graph Formulation Recovery Survey</title>
+    <link rel="stylesheet" href="styles.css" />
+  </head>
+  <body>
+    <header class="topbar">
+      <div>
+        <h1>Graph Formulation Recovery</h1>
+        <p id="assignmentMeta">Loading assignment...</p>
+      </div>
+      <div class="statusBox">
+        <span id="saveStatus">Not loaded</span>
+        <button id="exportBtn" type="button">Export JSONL</button>
+      </div>
+    </header>
+
+    <main id="app" class="layout hidden">
+      <aside class="sidebar">
+        <div class="progress">
+          <div class="progressLabel"><span id="progressText">0 / 0 complete</span></div>
+          <div class="progressTrack"><div id="progressBar"></div></div>
+        </div>
+        <nav id="itemList" class="itemList" aria-label="Assigned items"></nav>
+      </aside>
+
+      <section class="workspace">
+        <div class="itemHeader">
+          <div>
+            <h2 id="itemTitle">Item</h2>
+            <p id="itemSubhead"></p>
+          </div>
+          <div class="itemActions">
+            <button id="prevBtn" type="button">Previous</button>
+            <button id="nextBtn" type="button">Next</button>
+          </div>
+        </div>
+
+        <article class="storyPanel">
+          <h3>Story</h3>
+          <div id="storyText" class="storyText"></div>
+        </article>
+
+        <form id="responseForm" class="formPanel">
+          <section>
+            <h3>Graph Model</h3>
+            <div class="controlGrid">
+              <label>Direction <select name="direction"></select></label>
+              <label>Weighting <select name="weighting"></select></label>
+              <label>Time model <select name="time_model"></select></label>
+            </div>
+          </section>
+
+          <section>
+            <h3>Allowed Operations</h3>
+            <div id="operationsBox" class="checkboxGrid"></div>
+          </section>
+
+          <section>
+            <div class="sectionHeader">
+              <h3>Active Objectives</h3>
+              <button id="addObjectiveBtn" type="button">Add Objective</button>
+            </div>
+            <div id="objectivesBox"></div>
+          </section>
+
+          <section>
+            <h3>Ambiguity and Confidence</h3>
+            <div class="controlGrid">
+              <label>Alternative formulation exists
+                <select name="alternative_formulation_exists">
+                  <option value="">Select</option>
+                  <option>Yes</option>
+                  <option>No</option>
+                  <option>Unsure</option>
+                </select>
+              </label>
+              <label>Overall confidence
+                <input name="overall_confidence" type="number" min="1" max="5" step="1" />
+              </label>
+            </div>
+            <label>Alternative formulation description
+              <textarea name="alternative_formulation_description" rows="3"></textarea>
+            </label>
+            <label>Notes
+              <textarea name="notes" rows="4"></textarea>
+            </label>
+          </section>
+
+          <div class="submitRow">
+            <button id="saveBtn" type="button">Save Progress</button>
+            <button id="submitBtn" type="button">Submit Item</button>
+          </div>
+        </form>
+      </section>
+    </main>
+
+    <div id="fatal" class="fatal hidden"></div>
+
+    <template id="objectiveTemplate">
+      <div class="objectiveCard">
+        <div class="objectiveTop">
+          <strong class="objectiveNumber">Objective</strong>
+          <button type="button" class="removeObjectiveBtn">Remove</button>
+        </div>
+        <div class="controlGrid">
+          <label>Objective <select data-field="l2_id" class="objectiveSelect"></select></label>
+          <label>Action <select data-field="action" class="actionSelect"></select></label>
+          <label>Object level <select data-field="object_level" class="objectLevelSelect"></select></label>
+          <label>Confidence <input data-field="confidence" type="number" min="1" max="5" step="1" /></label>
+        </div>
+        <label>Evidence span
+          <textarea data-field="evidence_spans" rows="3" placeholder="Paste the exact phrase(s) that support this objective."></textarea>
+        </label>
+      </div>
+    </template>
+
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script src="config.js"></script>
+    <script src="app.js"></script>
+  </body>
+</html>
+
