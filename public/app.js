@@ -118,7 +118,8 @@
   function initStaticControls() {
     fillSelect(document.querySelector("[name=direction]"), ["Directed", "Undirected", "Unclear"]);
     fillSelect(document.querySelector("[name=weighting]"), ["Weighted", "Unweighted", "Unclear"]);
-    fillSelect(document.querySelector("[name=time_model]"), ["Static", "Dynamic", "Temporal", "Unclear"]);
+    const timeOptions = state.schema.time_model?.options || ["Static", "Dynamic/Temporal", "Unclear"];
+    fillSelect(document.querySelector("[name=time_model]"), timeOptions);
 
     const ops = state.schema.allowed_operations?.options || [];
     const box = $("#operationsBox");
