@@ -1,6 +1,6 @@
 # GFM Human Eval Survey
 
-Static GitHub Pages survey app for blind formulation recovery.
+Static GitHub Pages survey app for graph-formulation human evaluation. It supports blind formulation recovery and formulation A/B preference assignments.
 
 Live app:
 
@@ -54,7 +54,17 @@ The public app includes only form options. Hidden keys, provider/status provenan
 
 Assignment lookup uses the `get_survey_assignment(request_token_hash text)` Supabase RPC so direct public table reads do not expose all assignment packets.
 
-The app keeps local autosave drafts and submits completed items to `blind_recovery_responses`. Experts can still export JSONL as a backup after the assignment loads.
+The app keeps local autosave drafts and submits completed blind-recovery items to `blind_recovery_responses` and formulation A/B preference items to `formulation_ab_responses`. Experts can still export JSONL as a backup after the assignment loads.
+
+To generate lower-burden formulation A/B verification assignments:
+
+```bash
+python scripts/prepare_assignments.py \
+  --human_eval_dir ../human_eval_v31_pilot72 \
+  --out . \
+  --phase formulation_ab \
+  --max_items_per_annotator 10
+```
 
 ## Deploy To GitHub Pages
 

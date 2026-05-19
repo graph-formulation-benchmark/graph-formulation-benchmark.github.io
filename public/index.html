@@ -88,6 +88,36 @@
           <div id="storyText" class="storyText"></div>
         </article>
 
+        <form id="abResponseForm" class="formPanel hidden">
+          <section>
+            <h3>Candidate Formulations</h3>
+            <div class="candidateGrid">
+              <article class="candidatePanel">
+                <h4>Candidate A</h4>
+                <div id="candidateA" class="candidateBody"></div>
+              </article>
+              <article class="candidatePanel">
+                <h4>Candidate B</h4>
+                <div id="candidateB" class="candidateBody"></div>
+              </article>
+            </div>
+          </section>
+
+          <section>
+            <h3>Which formulation is better supported by the story?</h3>
+            <div class="choiceGrid">
+              <label><input type="radio" name="preferred_candidate" value="A" /> Candidate A</label>
+              <label><input type="radio" name="preferred_candidate" value="B" /> Candidate B</label>
+              <label><input type="radio" name="preferred_candidate" value="Tie" /> Tie / equally supported</label>
+            </div>
+          </section>
+
+          <div class="submitRow">
+            <button id="saveAbBtn" type="button">Save Progress</button>
+            <button id="submitAbBtn" type="button">Submit Item</button>
+          </div>
+        </form>
+
         <form id="responseForm" class="formPanel">
           <section>
             <h3>Graph Model</h3>

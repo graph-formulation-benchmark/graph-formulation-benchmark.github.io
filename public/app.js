@@ -11,6 +11,18 @@
 
   const $ = (selector) => document.querySelector(selector);
 
+  function surveyPhase() {
+    return state.assignment?.phase || "blind_recovery";
+  }
+
+  function isFormulationAb() {
+    return surveyPhase() === "formulation_ab";
+  }
+
+  function itemKey(item) {
+    return item.formulation_pair_id || item.human_item_id || item.pair_id || item.triage_id || "";
+  }
+
   function showFatal(message) {
     $("#fatal").textContent = message;
     $("#fatal").classList.remove("hidden");
@@ -154,6 +166,83 @@
     objectiveOptions().forEach((row) => select.appendChild(option(row.id, row.label)));
   }
 
+  function objectiveLabel(id) {
+    const row = objectiveById(id);
+    return row ? `${row.id} ${row.name}` : String(id || "");
+  }
+
+  function listText(value) {
+    if (Array.isArray(value)) {
+      return value.map((x) => String(x).trim()).filter(Boolean).join("; ");
+    }
+    return String(value || "").trim();
+  }
+
+  function appendCandidateSection(parent, title, content) {
+    const section = document.createElement("div");
+    section.className = "candidateSection";
+    const heading = document.createElement("strong");
+    heading.textContent = title;
+    section.appendChild(heading);
+    if (content) {
+      section.appendChild(content);
+    } else {
+      const empty = document.createElement("div");
+      empty.className = "candidateEmpty";
+      empty.textContent = "Not specified";
+      section.appendChild(empty);
+    }
+    parent.appendChild(section);
+  }
+
+  function renderCandidate(container, candidate) {
+    container.innerHTML = "";
+    const gm = candidate?.graph_model || {};
+    const properties = document.createElement("div");
+    properties.className = "candidateProperties";
+    [
+      ["Direction", gm.direction],
+      ["Weighting", gm.weighting],
+      ["Time model", gm.time_model],
+      ["Node meaning", listText(gm.node_meaning)],
+      ["Edge meaning", listText(gm.edge_meaning)]
+    ].forEach(([label, value]) => {
+      const row = document.createElement("div");
+      const key = document.createElement("span");
+      key.textContent = label;
+      const val = document.createElement("span");
+      val.textContent = value || "Not specified";
+      if (!value) val.className = "candidateEmpty";
+      row.appendChild(key);
+      row.appendChild(val);
+      properties.appendChild(row);
+    });
+    appendCandidateSection(container, "Graph model", properties);
+
+    const operations = listText(candidate?.operations || []);
+    appendCandidateSection(container, "Operations", operations ? document.createTextNode(operations) : null);
+
+    const objectives = Array.isArray(candidate?.objectives) ? candidate.objectives : [];
+    if (objectives.length) {
+      const box = document.createElement("div");
+      box.className = "candidateObjectives";
+      objectives.forEach((obj) => {
+        const row = document.createElement("div");
+        row.className = "candidateObjectiveRow";
+        const label = document.createElement("span");
+        label.textContent = objectiveLabel(obj.l2_id || obj.objective_id);
+        const detail = document.createElement("span");
+        detail.textContent = [obj.action, obj.object_level].filter(Boolean).join(" / ");
+        row.appendChild(label);
+        row.appendChild(detail);
+        box.appendChild(row);
+      });
+      appendCandidateSection(container, "Objectives", box);
+    } else {
+      appendCandidateSection(container, "Objectives", null);
+    }
+  }
+
   function initSupabase() {
     const cfg = window.SURVEY_CONFIG || {};
     if (!cfg.SUPABASE_URL || !cfg.SUPABASE_ANON_KEY || !window.supabase) {
@@ -206,6 +295,17 @@
   }
 
   function blankResponse(item) {
+    if (isFormulationAb()) {
+      return {
+        annotator_id: state.assignment.annotator_id,
+        assignment_id: state.assignment.assignment_id,
+        formulation_pair_id: item.formulation_pair_id,
+        human_item_id: item.human_item_id || "",
+        preferred_candidate: "",
+        submitted: false,
+        submitted_at: ""
+      };
+    }
     return {
       annotator_id: state.assignment.annotator_id,
       assignment_id: state.assignment.assignment_id,
@@ -228,10 +328,11 @@
 
   function currentResponse() {
     const item = currentItem();
-    if (!state.responses[item.human_item_id]) {
-      state.responses[item.human_item_id] = blankResponse(item);
+    const key = itemKey(item);
+    if (!state.responses[key]) {
+      state.responses[key] = blankResponse(item);
     }
-    return state.responses[item.human_item_id];
+    return state.responses[key];
   }
 
   function addObjectiveRow(value = {}) {
@@ -266,11 +367,12 @@
     const list = $("#itemList");
     list.innerHTML = "";
     state.assignment.items.forEach((item, idx) => {
-      const response = state.responses[item.human_item_id];
+      const id = itemKey(item);
+      const response = state.responses[id];
       const btn = document.createElement("button");
       btn.type = "button";
       btn.className = `itemButton${idx === state.currentIndex ? " active" : ""}`;
-      btn.innerHTML = `<span>${item.human_item_id}</span><span class="badge ${response?.submitted ? "done" : ""}">${response?.submitted ? "submitted" : "open"}</span>`;
+      btn.innerHTML = `<span>${id}</span><span class="badge ${response?.submitted ? "done" : ""}">${response?.submitted ? "submitted" : "open"}</span>`;
       btn.addEventListener("click", () => {
         saveFromForm();
         state.currentIndex = idx;
@@ -282,7 +384,7 @@
 
   function renderProgress() {
     const total = state.assignment.items.length;
-    const done = state.assignment.items.filter((item) => state.responses[item.human_item_id]?.submitted).length;
+    const done = state.assignment.items.filter((item) => state.responses[itemKey(item)]?.submitted).length;
     $("#progressText").textContent = `${done} / ${total} submitted`;
     $("#progressBar").style.width = total ? `${(done / total) * 100}%` : "0";
   }
@@ -290,9 +392,25 @@
   function renderCurrentItem() {
     const item = currentItem();
     const response = currentResponse();
-    $("#itemTitle").textContent = item.human_item_id;
+    $("#itemTitle").textContent = itemKey(item);
     $("#itemSubhead").textContent = "";
     $("#storyText").textContent = item.story_text;
+
+    if (isFormulationAb()) {
+      $("#responseForm").classList.add("hidden");
+      $("#abResponseForm").classList.remove("hidden");
+      renderCandidate($("#candidateA"), item.candidate_A || {});
+      renderCandidate($("#candidateB"), item.candidate_B || {});
+      document.querySelectorAll("[name=preferred_candidate]").forEach((input) => {
+        input.checked = response.preferred_candidate === input.value;
+      });
+      renderItemList();
+      renderProgress();
+      return;
+    }
+
+    $("#abResponseForm").classList.add("hidden");
+    $("#responseForm").classList.remove("hidden");
 
     const form = $("#responseForm");
     form.direction.value = response.direction || "";
@@ -334,6 +452,14 @@
   function saveFromForm() {
     if (!state.assignment) return;
     const item = currentItem();
+    if (isFormulationAb()) {
+      const response = currentResponse();
+      const checked = document.querySelector("[name=preferred_candidate]:checked");
+      response.preferred_candidate = checked ? checked.value : "";
+      state.responses[itemKey(item)] = response;
+      saveLocalResponses();
+      return;
+    }
     const form = $("#responseForm");
     const response = currentResponse();
     response.direction = form.direction.value;
@@ -343,11 +469,20 @@
     response.edge_meaning = form.edge_meaning.value;
     response.allowed_operations = Array.from(document.querySelectorAll("[name=allowed_operations]:checked")).map((x) => x.value);
     response.active_objectives = collectObjectives();
-    state.responses[item.human_item_id] = response;
+    state.responses[itemKey(item)] = response;
     saveLocalResponses();
   }
 
   function responsePayload(response) {
+    if (response.formulation_pair_id) {
+      return {
+        annotator_id: response.annotator_id || state.assignment.annotator_id,
+        assignment_id: response.assignment_id || state.assignment.assignment_id,
+        formulation_pair_id: response.formulation_pair_id || "",
+        human_item_id: response.human_item_id || "",
+        preferred_candidate: response.preferred_candidate || ""
+      };
+    }
     const activeObjectives = (response.active_objectives || []).map((obj) => ({
       l2_id: obj.l2_id || obj.objective_id || "",
       objective_id: obj.objective_id || obj.l2_id || "",
@@ -394,6 +529,10 @@
   async function submitCurrentItem() {
     saveFromForm();
     const response = currentResponse();
+    if (isFormulationAb() && !response.preferred_candidate) {
+      setStatus("Choose Candidate A, Candidate B, or Tie before submitting");
+      return;
+    }
     response.submitted = true;
     response.submitted_at = new Date().toISOString();
     saveLocalResponses();
@@ -405,15 +544,26 @@
     }
 
     const cfg = window.SURVEY_CONFIG || {};
-    const payload = {
-      token_hash: state.tokenHash,
-      annotator_id: state.assignment.annotator_id,
-      assignment_id: state.assignment.assignment_id,
-      human_item_id: response.human_item_id,
-      response_json: responsePayload(response),
-      client_version: cfg.CLIENT_VERSION || "gfm-human-eval-web"
-    };
-    const { error } = await state.supabase.from("blind_recovery_responses").insert(payload);
+    const table = isFormulationAb() ? "formulation_ab_responses" : "blind_recovery_responses";
+    const payload = isFormulationAb()
+      ? {
+          token_hash: state.tokenHash,
+          annotator_id: state.assignment.annotator_id,
+          assignment_id: state.assignment.assignment_id,
+          formulation_pair_id: response.formulation_pair_id,
+          human_item_id: response.human_item_id || "",
+          response_json: responsePayload(response),
+          client_version: cfg.CLIENT_VERSION || "gfm-human-eval-web"
+        }
+      : {
+          token_hash: state.tokenHash,
+          annotator_id: state.assignment.annotator_id,
+          assignment_id: state.assignment.assignment_id,
+          human_item_id: response.human_item_id,
+          response_json: responsePayload(response),
+          client_version: cfg.CLIENT_VERSION || "gfm-human-eval-web"
+        };
+    const { error } = await state.supabase.from(table).insert(payload);
     if (error) {
       response.submitted = false;
       saveLocalResponses();
@@ -426,7 +576,7 @@
 
   function exportJsonl() {
     saveFromForm();
-    const rows = state.assignment.items.map((item) => responsePayload(state.responses[item.human_item_id] || blankResponse(item)));
+    const rows = state.assignment.items.map((item) => responsePayload(state.responses[itemKey(item)] || blankResponse(item)));
     const jsonl = rows.map((row) => JSON.stringify(row)).join("\n") + "\n";
     const blob = new Blob([jsonl], { type: "application/jsonl" });
     const url = URL.createObjectURL(blob);
@@ -444,6 +594,8 @@
     });
     $("#saveBtn").addEventListener("click", saveFromForm);
     $("#submitBtn").addEventListener("click", submitCurrentItem);
+    $("#saveAbBtn").addEventListener("click", saveFromForm);
+    $("#submitAbBtn").addEventListener("click", submitCurrentItem);
     $("#exportBtn").addEventListener("click", exportJsonl);
     $("#prevBtn").addEventListener("click", () => {
       saveFromForm();
@@ -456,6 +608,7 @@
       renderCurrentItem();
     });
     $("#responseForm").addEventListener("change", saveFromForm);
+    $("#abResponseForm").addEventListener("change", saveFromForm);
   }
 
   async function boot() {
@@ -473,6 +626,11 @@
       loadLocalResponses();
       wireEvents();
       $("#assignmentMeta").textContent = `${state.assignment.annotator_id} · ${state.assignment.assignment_id} · ${state.assignment.items.length} assigned items`;
+      if (isFormulationAb()) {
+        document.querySelector("h1").textContent = "Graph Formulation A/B Review";
+        document.querySelector(".tutorialPanel summary").textContent = "How to complete this task";
+        document.querySelector(".tutorialBody > p").textContent = "Read the story and compare Candidate A and Candidate B. Choose the formulation that is better supported by the story, or choose Tie if they are similarly supported.";
+      }
       $("#app").classList.remove("hidden");
       setStatus(state.supabase ? "Ready; Supabase enabled" : "Ready; export fallback only");
       renderCurrentItem();

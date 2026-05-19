@@ -2,71 +2,664 @@
   {
     "id": "OBJ_001",
     "name": "connectivityOf",
-    "definition": "Refers to the ability to traverse the network; focuses on reachability and the existence of paths rather than resilience."
+    "display_name": "Connectivity",
+    "definition": "Refers to the ability to traverse the network; focuses on reachability and the existence of paths rather than resilience.",
+    "applicable_objects": [
+      "Whole graph",
+      "Subgraph"
+    ],
+    "story_cues": {
+      "positive": [
+        "all areas remain reachable",
+        "isolated parts are reconnected",
+        "the service stays in one piece",
+        "users can still get across the system"
+      ],
+      "negative": [
+        "isolated pockets remain",
+        "routes break into islands",
+        "teams cannot reach needed counterparts",
+        "the service splits apart"
+      ],
+      "avoid_phrases": [
+        "failure survival as the main evidence",
+        "two-endpoint guarantees as the only evidence",
+        "generic improvement without reachability"
+      ]
+    },
+    "boundary_rules": [
+      "Use this when the key evidence is reachability across a whole system or named subset.",
+      "Do not use it when the main evidence is surviving outages; that is robustness.",
+      "Do not reduce it to one named pair unless the objective is pairwise connectivity."
+    ],
+    "confusable_objectives": [
+      {
+        "objective_id": "OBJ_002",
+        "relationship": "ensure_vs_optimize",
+        "distinction": "If Promote connectivityOf is official, state the floor being preserved and avoid making failure stress the main outcome."
+      },
+      {
+        "objective_id": "OBJ_013",
+        "relationship": "scope_proxy",
+        "distinction": "If Promote connectivityOf is official, avoid making a two-endpoint guarantee the only clear cue."
+      }
+    ]
   },
   {
     "id": "OBJ_002",
     "name": "robustnessOf",
-    "definition": "Refers to the network's ability to maintain its structural integrity and function when nodes or edges are removed or fail."
+    "display_name": "Robustness",
+    "definition": "Refers to the network's ability to maintain its structural integrity and function when nodes or edges are removed or fail.",
+    "applicable_objects": [
+      "Whole graph",
+      "Subgraph"
+    ],
+    "story_cues": {
+      "positive": [
+        "backup options handle an outage",
+        "service continues after a removal",
+        "a disruption no longer collapses the plan",
+        "stress tests are easier to pass"
+      ],
+      "negative": [
+        "one failure can stop the plan",
+        "backup routes are missing",
+        "the system is brittle under stress",
+        "a removal causes collapse"
+      ],
+      "avoid_phrases": [
+        "ordinary reachability without failure evidence",
+        "single-pair access as the main result",
+        "generic safety language without disruption"
+      ]
+    },
+    "boundary_rules": [
+      "Use this when failure, outage, removal, or stress survival is central.",
+      "Do not use it for ordinary reachability without an explicit disruption condition.",
+      "If only two named endpoints are protected, consider pairwise connectivity instead."
+    ],
+    "confusable_objectives": [
+      {
+        "objective_id": "OBJ_001",
+        "relationship": "ensure_vs_optimize",
+        "distinction": "If Promote robustnessOf is official, include explicit failure-survival evidence beyond ordinary reachability."
+      },
+      {
+        "objective_id": "OBJ_013",
+        "relationship": "same_action_neighbor",
+        "distinction": "If Promote robustnessOf is official, show the broader system keeps functioning after disruption, not only that two endpoints are better connected."
+      },
+      {
+        "objective_id": "OBJ_013",
+        "relationship": "scope_proxy",
+        "distinction": "If Promote robustnessOf is official, state the resilience floor for the broader object, not only a pairwise link."
+      },
+      {
+        "objective_id": "OBJ_005",
+        "relationship": "ensure_vs_optimize",
+        "distinction": "If Promote robustnessOf is official, include disruption survival rather than only group tightness."
+      }
+    ]
   },
   {
     "id": "OBJ_003",
     "name": "centralityOf",
-    "definition": "Measures the relative importance, influence, or structural prominence of a specific entity within the network topology."
+    "display_name": "Centrality",
+    "definition": "Measures the relative importance, influence, or structural prominence of a specific entity within the network topology.",
+    "applicable_objects": [
+      "Node",
+      "Edge"
+    ],
+    "story_cues": {
+      "positive": [
+        "one actor becomes the main broker",
+        "a route carries most handoffs",
+        "a site becomes the hub",
+        "a person gains structural influence"
+      ],
+      "negative": [
+        "the bottleneck loses importance",
+        "work no longer depends on one actor",
+        "handoffs bypass the old broker",
+        "influence is less concentrated on one point"
+      ],
+      "avoid_phrases": [
+        "overall evenness as the main evidence",
+        "group tightness as the main evidence",
+        "size changes without prominence changes"
+      ]
+    },
+    "boundary_rules": [
+      "Use this when the story is about a named entity or relationship gaining or losing prominence.",
+      "Do not use it when the main point is broad even distribution; that is balance.",
+      "Do not use it for hierarchy unless ranking or command layers are the main signal."
+    ],
+    "confusable_objectives": [
+      {
+        "objective_id": "OBJ_009",
+        "relationship": "inverse_proxy",
+        "distinction": "If Reduce centralityOf is official, focus on the focal entity's reduced prominence, not broad distribution."
+      },
+      {
+        "objective_id": "OBJ_009",
+        "relationship": "inverse_proxy",
+        "distinction": "If Promote centralityOf is official, focus on one entity gaining importance rather than global imbalance."
+      },
+      {
+        "objective_id": "OBJ_011",
+        "relationship": "same_action_neighbor",
+        "distinction": "If Promote centralityOf is official, focus on the focal entity rather than whole-system tiers."
+      }
+    ]
   },
   {
     "id": "OBJ_004",
     "name": "densityOf",
-    "definition": "Measures the ratio of actual edges present in the object relative to the maximum possible number of edges."
+    "display_name": "Density",
+    "definition": "Measures the ratio of actual edges present in the object relative to the maximum possible number of edges.",
+    "applicable_objects": [
+      "Whole graph",
+      "Subgraph"
+    ],
+    "story_cues": {
+      "positive": [
+        "more internal ties are added",
+        "the area becomes more tightly linked",
+        "relationship coverage fills in",
+        "the subset becomes less sparse"
+      ],
+      "negative": [
+        "unneeded ties are removed",
+        "the area becomes less crowded",
+        "relationship coverage thins out",
+        "the subset is deliberately kept sparse"
+      ],
+      "avoid_phrases": [
+        "triangles as the main evidence",
+        "community separation as the main evidence",
+        "relationship strength without relationship count"
+      ]
+    },
+    "boundary_rules": [
+      "Use this when the amount of relationship coverage is the main evidence.",
+      "Do not use it when local triangle-like closure is the point; that is clustering.",
+      "Do not use it when the point is separating communities; that is modularity."
+    ],
+    "confusable_objectives": [
+      {
+        "objective_id": "OBJ_005",
+        "relationship": "same_action_neighbor",
+        "distinction": "If Promote densityOf is official, distinguish link abundance from group unity."
+      },
+      {
+        "objective_id": "OBJ_006",
+        "relationship": "same_action_neighbor",
+        "distinction": "If Promote densityOf is official, keep the cue about overall packedness, not local triangles."
+      },
+      {
+        "objective_id": "OBJ_007",
+        "relationship": "same_action_neighbor",
+        "distinction": "If Promote densityOf is official, distinguish packedness from raw growth."
+      }
+    ]
   },
   {
     "id": "OBJ_005",
     "name": "cohesivenessOf",
-    "definition": "Focuses on the internal strength and bonding of a single group; measures how tightly-knit and difficult to separate the object is."
+    "display_name": "Cohesiveness",
+    "definition": "Focuses on the internal strength and bonding of a single group; measures how tightly-knit and difficult to separate the object is.",
+    "applicable_objects": [
+      "Whole graph",
+      "Subgraph"
+    ],
+    "story_cues": {
+      "positive": [
+        "members coordinate as one unit",
+        "the group becomes harder to split",
+        "internal bonds are reinforced",
+        "the unit holds together under pressure"
+      ],
+      "negative": [
+        "the group is loosened",
+        "internal bonds are deliberately weakened",
+        "the unit can split apart more easily",
+        "coordination inside the group is reduced"
+      ],
+      "avoid_phrases": [
+        "simple reachability as the only evidence",
+        "failure survival as the main evidence",
+        "packedness without group bonding"
+      ]
+    },
+    "boundary_rules": [
+      "Use this when internal bonding or togetherness is the main signal.",
+      "Do not use it for mere reachability; that is connectivity.",
+      "Do not use it for disruption survival unless the story emphasizes stress tolerance."
+    ],
+    "confusable_objectives": [
+      {
+        "objective_id": "OBJ_004",
+        "relationship": "same_action_neighbor",
+        "distinction": "If Promote cohesivenessOf is official, focus on group binding rather than link counts."
+      },
+      {
+        "objective_id": "OBJ_008",
+        "relationship": "same_action_neighbor",
+        "distinction": "If Promote cohesivenessOf is official, keep the evidence inside one group."
+      },
+      {
+        "objective_id": "OBJ_002",
+        "relationship": "ensure_vs_optimize",
+        "distinction": "If Promote cohesivenessOf is official, focus on group unity rather than disruption survival."
+      }
+    ]
   },
   {
     "id": "OBJ_006",
     "name": "clusteringOf",
-    "definition": "Measures the tendency for nodes to form dense local neighborhoods or triangles (triadic closure)."
+    "display_name": "Clustering",
+    "definition": "Measures the tendency for nodes to form dense local neighborhoods or triangles (triadic closure).",
+    "applicable_objects": [
+      "Node",
+      "Whole graph"
+    ],
+    "story_cues": {
+      "positive": [
+        "local partners are connected to one another",
+        "small circles close up",
+        "neighbors start coordinating directly",
+        "local collaboration loops appear"
+      ],
+      "negative": [
+        "local circles are opened up",
+        "nearby partners no longer all connect",
+        "closed local loops are broken",
+        "local cliques are discouraged"
+      ],
+      "avoid_phrases": [
+        "overall packedness as the only evidence",
+        "large community separation as the main evidence",
+        "generic group cohesion"
+      ]
+    },
+    "boundary_rules": [
+      "Use this when the evidence is local closure among nearby participants.",
+      "Do not use it for general relationship density across an entire system.",
+      "Do not use it for community partition quality; that is modularity."
+    ],
+    "confusable_objectives": [
+      {
+        "objective_id": "OBJ_004",
+        "relationship": "same_action_neighbor",
+        "distinction": "If Promote clusteringOf is official, focus on local neighborhoods rather than whole-object packedness."
+      },
+      {
+        "objective_id": "OBJ_008",
+        "relationship": "same_action_neighbor",
+        "distinction": "If Promote clusteringOf is official, do not make community partition quality the main result."
+      }
+    ]
   },
   {
     "id": "OBJ_007",
     "name": "sizeOf",
-    "definition": "Quantifies the magnitude of the object, typically defined by the count of its nodes (order) or edges."
+    "display_name": "Size",
+    "definition": "Quantifies the magnitude of the object, typically defined by the count of its nodes (order) or edges.",
+    "applicable_objects": [
+      "Whole graph",
+      "Subgraph"
+    ],
+    "story_cues": {
+      "positive": [
+        "more sites are added",
+        "the review covers more relationships",
+        "the selected subset expands",
+        "more participants are included"
+      ],
+      "negative": [
+        "the set is narrowed",
+        "extra participants are removed",
+        "the scope is capped",
+        "the review covers fewer relationships"
+      ],
+      "avoid_phrases": [
+        "importance of one entity",
+        "relationship strength changes only",
+        "connectivity changes without count changes"
+      ]
+    },
+    "boundary_rules": [
+      "Use this when count or scope expansion/contraction is the main evidence.",
+      "Do not use it for stronger or weaker relationships unless the number of items changes.",
+      "Do not confuse size with centrality, which is about prominence rather than count."
+    ],
+    "confusable_objectives": [
+      {
+        "objective_id": "OBJ_004",
+        "relationship": "same_action_neighbor",
+        "distinction": "If Promote sizeOf is official, make count growth explicit rather than packedness."
+      }
+    ]
   },
   {
     "id": "OBJ_008",
     "name": "modularityOf",
-    "definition": "Measures the quality of a specific partition of the network; compares the density of intra-community links to what would be expected in a random network."
+    "display_name": "Modularity",
+    "definition": "Measures the quality of a specific partition of the network; compares the density of intra-community links to what would be expected in a random network.",
+    "applicable_objects": [
+      "Whole graph"
+    ],
+    "story_cues": {
+      "positive": [
+        "units become clearer communities",
+        "cross-group ties are reduced while internal ties remain",
+        "responsibilities are partitioned cleanly",
+        "groups become easier to distinguish"
+      ],
+      "negative": [
+        "community boundaries are blurred",
+        "cross-group ties are added deliberately",
+        "separate units are integrated",
+        "partition quality is reduced"
+      ],
+      "avoid_phrases": [
+        "simple local closure",
+        "overall relationship count",
+        "group strength without separation"
+      ]
+    },
+    "boundary_rules": [
+      "Use this when community separation or partition quality is central.",
+      "Do not use it for local closure around one participant; that is clustering.",
+      "Do not use it for generic packedness; that is density."
+    ],
+    "confusable_objectives": [
+      {
+        "objective_id": "OBJ_006",
+        "relationship": "same_action_neighbor",
+        "distinction": "If Promote modularityOf is official, focus on community partition quality, not local triangles."
+      },
+      {
+        "objective_id": "OBJ_005",
+        "relationship": "same_action_neighbor",
+        "distinction": "If Promote modularityOf is official, emphasize the partition, not a single group's unity."
+      }
+    ]
   },
   {
     "id": "OBJ_009",
     "name": "balanceOf",
-    "definition": "Measures how evenly structural load or connectivity is distributed across the graph, aiming to avoid concentration in a few nodes or links."
+    "display_name": "Balance",
+    "definition": "Measures how evenly structural load or connectivity is distributed across the graph, aiming to avoid concentration in a few nodes or links.",
+    "applicable_objects": [
+      "Whole graph"
+    ],
+    "story_cues": {
+      "positive": [
+        "work is spread more evenly",
+        "no one site carries the burden alone",
+        "traffic is balanced across options",
+        "responsibility is redistributed"
+      ],
+      "negative": [
+        "load is intentionally concentrated",
+        "one route receives priority",
+        "responsibility is pulled back to fewer actors",
+        "unevenness increases by design"
+      ],
+      "avoid_phrases": [
+        "one named hub losing prominence as the only evidence",
+        "resilience under failure",
+        "community partition language"
+      ]
+    },
+    "boundary_rules": [
+      "Use this when broad evenness of distribution is the main signal.",
+      "Do not use it when evidence is only one entity losing prominence; that is centrality.",
+      "Do not use it for failure survival unless the even spread is the explicit objective."
+    ],
+    "confusable_objectives": [
+      {
+        "objective_id": "OBJ_003",
+        "relationship": "inverse_proxy",
+        "distinction": "If Promote balanceOf is official, describe system-wide evenness rather than only one bottleneck."
+      },
+      {
+        "objective_id": "OBJ_003",
+        "relationship": "inverse_proxy",
+        "distinction": "If Reduce balanceOf is official, describe distribution becoming less even across the system, not only one focal entity."
+      },
+      {
+        "objective_id": "OBJ_011",
+        "relationship": "inverse_proxy",
+        "distinction": "If Reduce balanceOf is official, focus on unevenness rather than formal layers."
+      }
+    ]
   },
   {
     "id": "OBJ_010",
     "name": "assortativityOf",
-    "definition": "Measures the tendency of nodes to connect to other similar nodes based on an attribute like degree (homophily)."
+    "display_name": "Assortativity",
+    "definition": "Measures the tendency of nodes to connect to other similar nodes based on an attribute like degree (homophily).",
+    "applicable_objects": [
+      "Whole graph"
+    ],
+    "story_cues": {
+      "positive": [
+        "like pairs are grouped together",
+        "similar teams interact more",
+        "same-type partners are favored",
+        "homogeneous matching increases"
+      ],
+      "negative": [
+        "different types are mixed deliberately",
+        "same-type pairing is reduced",
+        "cross-category interaction is encouraged",
+        "homogeneous matching weakens"
+      ],
+      "avoid_phrases": [
+        "pairwise similarity between two named items only",
+        "community separation without similarity basis",
+        "hierarchy or rank matching"
+      ]
+    },
+    "boundary_rules": [
+      "Use this when similarity-based pairing across the system is the point.",
+      "Do not use it for two specific entities being similar; that is pairwise similarity.",
+      "Do not use it for communities unless the boundary is explicitly based on similarity."
+    ],
+    "confusable_objectives": [
+      {
+        "objective_id": "OBJ_014",
+        "relationship": "scope_proxy",
+        "distinction": "If Promote assortativityOf is official, keep the cue graph-wide rather than pairwise."
+      },
+      {
+        "objective_id": "OBJ_014",
+        "relationship": "inverse_proxy",
+        "distinction": "If Reduce assortativityOf is official, describe the mixing tendency across the graph, not one pair's similarity."
+      }
+    ]
   },
   {
     "id": "OBJ_011",
     "name": "hierarchyOf",
-    "definition": "Measures the extent to which the object displays a stratified, flow-oriented, or tree-like structure with inherent directionality."
+    "display_name": "Hierarchy",
+    "definition": "Measures the extent to which the object displays a stratified, flow-oriented, or tree-like structure with inherent directionality.",
+    "applicable_objects": [
+      "Whole graph",
+      "Subgraph"
+    ],
+    "story_cues": {
+      "positive": [
+        "a clearer chain of command appears",
+        "layers become more explicit",
+        "work moves through ranked tiers",
+        "upstream and downstream roles are separated"
+      ],
+      "negative": [
+        "layers are flattened",
+        "direct cross-level access is added",
+        "command bottlenecks are removed",
+        "ranked routing is loosened"
+      ],
+      "avoid_phrases": [
+        "generic directionality",
+        "one important hub only",
+        "community separation without rank"
+      ]
+    },
+    "boundary_rules": [
+      "Use this when layered order or rank structure is the main evidence.",
+      "Do not use it for a single influential entity unless layers are involved.",
+      "Do not use it for broad distribution of load; that is balance."
+    ],
+    "confusable_objectives": [
+      {
+        "objective_id": "OBJ_003",
+        "relationship": "same_action_neighbor",
+        "distinction": "If Promote hierarchyOf is official, make layered ordering the main outcome."
+      }
+    ]
   },
   {
     "id": "OBJ_012",
     "name": "distanceBetween",
-    "definition": "Measures the length of the shortest path (geodesic) connecting two specific objects."
+    "display_name": "Distance Between",
+    "definition": "Measures the length of the shortest path (geodesic) connecting two specific objects.",
+    "applicable_objects": [
+      "Pair of nodes"
+    ],
+    "story_cues": {
+      "positive": [
+        "the two endpoints are kept farther apart",
+        "extra review steps are inserted",
+        "the route between them becomes longer",
+        "direct access is delayed"
+      ],
+      "negative": [
+        "handoffs are shortened",
+        "the two endpoints are brought closer",
+        "a direct route is added",
+        "fewer steps are needed"
+      ],
+      "avoid_phrases": [
+        "number of available routes",
+        "whole-system reachability",
+        "similarity of roles"
+      ]
+    },
+    "boundary_rules": [
+      "Use this when the distance or number of steps between two named endpoints is central.",
+      "Do not use it for path capacity or redundancy; that is pairwise connectivity.",
+      "Do not use it for overall system reachability."
+    ],
+    "confusable_objectives": [
+      {
+        "objective_id": "OBJ_013",
+        "relationship": "inverse_proxy",
+        "distinction": "If Reduce distanceBetween is official, focus on route length rather than path quality."
+      }
+    ]
   },
   {
     "id": "OBJ_013",
     "name": "connectivityBetween",
-    "definition": "Refers to the number, capacity, or resilience of paths between two objects; determines how well-connected they are rather than just how far apart they are."
+    "display_name": "Connectivity Between",
+    "definition": "Refers to the number, capacity, or resilience of paths between two objects; determines how well-connected they are rather than just how far apart they are.",
+    "applicable_objects": [
+      "Pair of nodes"
+    ],
+    "story_cues": {
+      "positive": [
+        "the two endpoints gain a dependable connection",
+        "more options link the pair",
+        "capacity between the pair improves",
+        "fallback access between the pair is preserved"
+      ],
+      "negative": [
+        "the pair has fewer access options",
+        "capacity between the endpoints is reduced",
+        "a fallback between them is removed",
+        "the pair becomes less connected"
+      ],
+      "avoid_phrases": [
+        "whole-system reachability",
+        "failure survival for the whole system",
+        "shorter distance without capacity or availability"
+      ]
+    },
+    "boundary_rules": [
+      "Use this when the evidence names two endpoints and their mutual access improves or is preserved.",
+      "Do not use it for whole-system reachability; that is connectivity.",
+      "Do not use it for merely shortening steps unless availability or capacity also matters."
+    ],
+    "confusable_objectives": [
+      {
+        "objective_id": "OBJ_002",
+        "relationship": "same_action_neighbor",
+        "distinction": "If Promote connectivityBetween is official, keep the evidence pairwise and do not make whole-system failure tolerance the main result."
+      },
+      {
+        "objective_id": "OBJ_002",
+        "relationship": "scope_proxy",
+        "distinction": "If Promote connectivityBetween is official, keep the guarantee between the named pair rather than across the whole system."
+      },
+      {
+        "objective_id": "OBJ_001",
+        "relationship": "scope_proxy",
+        "distinction": "If Promote connectivityBetween is official, keep the guarantee pairwise."
+      },
+      {
+        "objective_id": "OBJ_012",
+        "relationship": "inverse_proxy",
+        "distinction": "If Promote connectivityBetween is official, avoid making shortest path length the main outcome."
+      }
+    ]
   },
   {
     "id": "OBJ_014",
     "name": "similarityBetween",
-    "definition": "Measures the degree to which two objects exhibit structural or role equivalence; determines whether entities behave similarly within the topology."
+    "display_name": "Similarity Between",
+    "definition": "Measures the degree to which two objects exhibit structural or role equivalence; determines whether entities behave similarly within the topology.",
+    "applicable_objects": [
+      "Pair of nodes"
+    ],
+    "story_cues": {
+      "positive": [
+        "two entities are made more interchangeable",
+        "their roles become more alike",
+        "they receive similar relationship patterns",
+        "they can be compared as peers"
+      ],
+      "negative": [
+        "two entities are differentiated",
+        "their roles are separated",
+        "one is given a distinct pattern",
+        "interchangeability is reduced"
+      ],
+      "avoid_phrases": [
+        "same-type pairing across the whole system",
+        "distance between endpoints",
+        "direct connection between the pair"
+      ]
+    },
+    "boundary_rules": [
+      "Use this when two named entities become more or less role-equivalent.",
+      "Do not use it for system-wide similar-with-similar pairing; that is assortativity.",
+      "Do not use it for the pair being directly connected or closer."
+    ],
+    "confusable_objectives": [
+      {
+        "objective_id": "OBJ_010",
+        "relationship": "scope_proxy",
+        "distinction": "If Promote similarityBetween is official, keep the cue pairwise."
+      },
+      {
+        "objective_id": "OBJ_010",
+        "relationship": "inverse_proxy",
+        "distinction": "If Promote similarityBetween is official, keep the evidence pairwise rather than graph-wide."
+      }
+    ]
   }
 ]

@@ -258,6 +258,73 @@ button.primary, #submitBtn {
   gap: 22px;
 }
 
+.candidateGrid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 14px;
+}
+
+.candidatePanel {
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  background: #fbfcfe;
+  padding: 14px;
+}
+
+.candidatePanel h4 {
+  margin: 0 0 12px;
+  font-size: 15px;
+}
+
+.candidateBody {
+  display: grid;
+  gap: 12px;
+}
+
+.candidateSection {
+  display: grid;
+  gap: 5px;
+}
+
+.candidateSection strong {
+  color: var(--text);
+}
+
+.candidateProperties,
+.candidateObjectives {
+  display: grid;
+  gap: 6px;
+}
+
+.candidateProperties div,
+.candidateObjectiveRow {
+  display: grid;
+  grid-template-columns: 118px minmax(0, 1fr);
+  gap: 8px;
+}
+
+.candidateEmpty {
+  color: var(--muted);
+  font-style: italic;
+}
+
+.choiceGrid {
+  display: grid;
+  gap: 8px;
+}
+
+.choiceGrid label {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  gap: 8px;
+  font-weight: 600;
+}
+
+.choiceGrid input {
+  width: auto;
+}
+
 .controlGrid {
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(190px, 1fr));
@@ -417,8 +484,14 @@ textarea {
     grid-template-columns: 1fr;
   }
 
+  .candidateGrid {
+    grid-template-columns: 1fr;
+  }
+
   .exampleInputs div,
-  .objectiveHelpSection {
+  .objectiveHelpSection,
+  .candidateProperties div,
+  .candidateObjectiveRow {
     grid-template-columns: 1fr;
     gap: 4px;
   }

@@ -54,7 +54,16 @@ def normalize_schema(schema: Dict[str, Any]) -> Dict[str, Any]:
     return remove_unclear_options(keep)
 
 
-def public_assignment_item(row: Dict[str, Any]) -> Dict[str, Any]:
+def public_assignment_item(row: Dict[str, Any], phase: str) -> Dict[str, Any]:
+    if phase == "formulation_ab":
+        return {
+            "formulation_pair_id": row.get("formulation_pair_id", ""),
+            "human_item_id": row.get("human_item_id", ""),
+            "story_text": row.get("story_text", ""),
+            "candidate_A": row.get("candidate_A", {}),
+            "candidate_B": row.get("candidate_B", {}),
+            "instructions": row.get("instructions", "Read the story and choose which candidate formulation is better supported."),
+        }
     return {
         "human_item_id": row.get("human_item_id", ""),
         "story_text": row.get("story_text", ""),
@@ -98,19 +107,34 @@ def main() -> int:
     public_data.mkdir(parents=True, exist_ok=True)
     private.mkdir(parents=True, exist_ok=True)
 
-    items = {row["human_item_id"]: row for row in load_jsonl(human_eval / "packets/blind_recovery_items.jsonl")}
-    schema = json.loads((human_eval / "forms/blind_recovery_form_schema.json").read_text(encoding="utf-8"))
+    if args.phase == "formulation_ab":
+        item_key = "formulation_pair_id"
+        packet_path = human_eval / "packets/formulation_ab_pairs.jsonl"
+        schema_path = human_eval / "forms/formulation_ab_form_schema.json"
+    else:
+        item_key = "human_item_id"
+        packet_path = human_eval / "packets/blind_recovery_items.jsonl"
+        schema_path = human_eval / "forms/blind_recovery_form_schema.json"
+    items = {row[item_key]: row for row in load_jsonl(packet_path)}
+    schema = json.loads(schema_path.read_text(encoding="utf-8"))
+    objective_schema_path = human_eval / "forms/blind_recovery_form_schema.json"
+    objective_schema = json.loads(objective_schema_path.read_text(encoding="utf-8")) if objective_schema_path.exists() else {}
+    existing_taxonomy_path = public_data / "objective_taxonomy.json"
+    if existing_taxonomy_path.exists():
+        existing_taxonomy = json.loads(existing_taxonomy_path.read_text(encoding="utf-8"))
+        if isinstance(existing_taxonomy, list) and existing_taxonomy:
+            objective_schema["objective_taxonomy"] = existing_taxonomy
     assignments = read_assignment_rows(human_eval / "assignment/item_assignment.csv")
 
-    write_json(public_data / "form_schema.json", normalize_schema(schema))
-    write_json(public_data / "objective_taxonomy.json", schema.get("objective_taxonomy", []))
+    write_json(public_data / "form_schema.json", normalize_schema(schema if args.phase != "formulation_ab" else objective_schema))
+    write_json(public_data / "objective_taxonomy.json", objective_schema.get("objective_taxonomy", []))
 
     by_annotator: Dict[str, List[str]] = {}
     for row in assignments:
         if row.get("phase") != args.phase:
             continue
         annotator = row.get("annotator_id", "")
-        item_id = row.get("human_item_id", "")
+        item_id = row.get(item_key, "")
         if not annotator or item_id not in items:
             continue
         by_annotator.setdefault(annotator, []).append(item_id)
@@ -134,7 +158,7 @@ def main() -> int:
             "assignment_id": assignment_id,
             "annotator_id": annotator,
             "phase": args.phase,
-            "items": [public_assignment_item(items[item_id]) for item_id in selected],
+            "items": [public_assignment_item(items[item_id], args.phase) for item_id in selected],
         }
         h = token_hash(token)
         if args.write_static_assignments:

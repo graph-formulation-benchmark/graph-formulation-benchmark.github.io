@@ -4,7 +4,7 @@
       "id": "OBJ_001",
       "name": "connectivityOf",
       "display_name": "Connectivity",
-      "definition": "Whether the relevant parts can still reach one another through usable routes or relationships.",
+      "definition": "Refers to the ability to traverse the network; focuses on reachability and the existence of paths rather than resilience.",
       "applicable_objects": [
         "Whole graph",
         "Subgraph"
@@ -50,7 +50,7 @@
       "id": "OBJ_002",
       "name": "robustnessOf",
       "display_name": "Robustness",
-      "definition": "Whether the system keeps working when something breaks, is removed, or comes under stress.",
+      "definition": "Refers to the network's ability to maintain its structural integrity and function when nodes or edges are removed or fail.",
       "applicable_objects": [
         "Whole graph",
         "Subgraph"
@@ -106,7 +106,7 @@
       "id": "OBJ_003",
       "name": "centralityOf",
       "display_name": "Centrality",
-      "definition": "How much one entity or relationship acts as the key hub, broker, bottleneck, or point of influence.",
+      "definition": "Measures the relative importance, influence, or structural prominence of a specific entity within the network topology.",
       "applicable_objects": [
         "Node",
         "Edge"
@@ -157,7 +157,7 @@
       "id": "OBJ_004",
       "name": "densityOf",
       "display_name": "Density",
-      "definition": "How packed or sparse the relationships are within the relevant whole system or subset.",
+      "definition": "Measures the ratio of actual edges present in the object relative to the maximum possible number of edges.",
       "applicable_objects": [
         "Whole graph",
         "Subgraph"
@@ -208,7 +208,7 @@
       "id": "OBJ_005",
       "name": "cohesivenessOf",
       "display_name": "Cohesiveness",
-      "definition": "How strongly a group holds together internally and resists being pulled apart.",
+      "definition": "Focuses on the internal strength and bonding of a single group; measures how tightly-knit and difficult to separate the object is.",
       "applicable_objects": [
         "Whole graph",
         "Subgraph"
@@ -259,7 +259,7 @@
       "id": "OBJ_006",
       "name": "clusteringOf",
       "display_name": "Clustering",
-      "definition": "Whether local neighborhoods close up around the same participants, making nearby partners also connected to each other.",
+      "definition": "Measures the tendency for nodes to form dense local neighborhoods or triangles (triadic closure).",
       "applicable_objects": [
         "Node",
         "Whole graph"
@@ -305,7 +305,7 @@
       "id": "OBJ_007",
       "name": "sizeOf",
       "display_name": "Size",
-      "definition": "How many relevant entities or relationships are included in the whole system or selected subset.",
+      "definition": "Quantifies the magnitude of the object, typically defined by the count of its nodes (order) or edges.",
       "applicable_objects": [
         "Whole graph",
         "Subgraph"
@@ -346,7 +346,7 @@
       "id": "OBJ_008",
       "name": "modularityOf",
       "display_name": "Modularity",
-      "definition": "How clearly the system separates into internally focused communities with fewer cross-community ties.",
+      "definition": "Measures the quality of a specific partition of the network; compares the density of intra-community links to what would be expected in a random network.",
       "applicable_objects": [
         "Whole graph"
       ],
@@ -391,7 +391,7 @@
       "id": "OBJ_009",
       "name": "balanceOf",
       "display_name": "Balance",
-      "definition": "How evenly load, responsibility, attention, or connection is spread rather than concentrated.",
+      "definition": "Measures how evenly structural load or connectivity is distributed across the graph, aiming to avoid concentration in a few nodes or links.",
       "applicable_objects": [
         "Whole graph"
       ],
@@ -441,7 +441,7 @@
       "id": "OBJ_010",
       "name": "assortativityOf",
       "display_name": "Assortativity",
-      "definition": "Whether similar entities preferentially connect or work with similar entities.",
+      "definition": "Measures the tendency of nodes to connect to other similar nodes based on an attribute like degree (homophily).",
       "applicable_objects": [
         "Whole graph"
       ],
@@ -486,7 +486,7 @@
       "id": "OBJ_011",
       "name": "hierarchyOf",
       "display_name": "Hierarchy",
-      "definition": "How strongly relationships form layers, ranks, command chains, or upstream-downstream order.",
+      "definition": "Measures the extent to which the object displays a stratified, flow-oriented, or tree-like structure with inherent directionality.",
       "applicable_objects": [
         "Whole graph",
         "Subgraph"
@@ -527,7 +527,7 @@
       "id": "OBJ_012",
       "name": "distanceBetween",
       "display_name": "Distance Between",
-      "definition": "How many steps, handoffs, or units of effort separate two named endpoints.",
+      "definition": "Measures the length of the shortest path (geodesic) connecting two specific objects.",
       "applicable_objects": [
         "Pair of nodes"
       ],
@@ -567,7 +567,7 @@
       "id": "OBJ_013",
       "name": "connectivityBetween",
       "display_name": "Connectivity Between",
-      "definition": "How well two named endpoints can reach each other through available, dependable, or high-capacity options.",
+      "definition": "Refers to the number, capacity, or resilience of paths between two objects; determines how well-connected they are rather than just how far apart they are.",
       "applicable_objects": [
         "Pair of nodes"
       ],
@@ -622,7 +622,7 @@
       "id": "OBJ_014",
       "name": "similarityBetween",
       "display_name": "Similarity Between",
-      "definition": "How much two named entities play similar roles, face similar conditions, or connect in similar ways.",
+      "definition": "Measures the degree to which two objects exhibit structural or role equivalence; determines whether entities behave similarly within the topology.",
       "applicable_objects": [
         "Pair of nodes"
       ],
