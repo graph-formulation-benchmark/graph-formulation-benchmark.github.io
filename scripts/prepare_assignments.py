@@ -27,6 +27,10 @@ def write_json(path: Path, payload: Any) -> None:
 
 
 def normalize_schema(schema: Dict[str, Any]) -> Dict[str, Any]:
+    active_objectives = json.loads(json.dumps(schema.get("active_objectives", {})))
+    item_schema = active_objectives.get("item_schema", {})
+    for removed_field in ["confidence", "evidence_spans"]:
+        item_schema.pop(removed_field, None)
     keep = {
         "objective_taxonomy": schema.get("objective_taxonomy", []),
         "direction": schema.get("direction", {}),
@@ -34,14 +38,10 @@ def normalize_schema(schema: Dict[str, Any]) -> Dict[str, Any]:
         "time_model": schema.get("time_model", {}),
         "node_meaning": schema.get("node_meaning", {}),
         "edge_meaning": schema.get("edge_meaning", {}),
-        "trace": schema.get("trace", {}),
-        "graph_model_confidence": schema.get("graph_model_confidence", {}),
-        "active_objectives": schema.get("active_objectives", {}),
-        "identified_objectives": schema.get("identified_objectives", schema.get("active_objectives", {})),
+        "active_objectives": active_objectives,
+        "identified_objectives": schema.get("identified_objectives", active_objectives),
         "operations": schema.get("operations", schema.get("allowed_operations", {})),
         "allowed_operations": schema.get("allowed_operations", {}),
-        "alternative_formulation_exists": schema.get("alternative_formulation_exists", {}),
-        "overall_confidence": schema.get("overall_confidence", {}),
     }
     return keep
 

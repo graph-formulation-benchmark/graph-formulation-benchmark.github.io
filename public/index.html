@@ -28,6 +28,29 @@
       </aside>
 
       <section class="workspace">
+        <details class="tutorialPanel" open>
+          <summary>How to complete this task</summary>
+          <div class="tutorialBody">
+            <p>Read the story exactly as shown and recover the graph formulation from that story alone. Do not use external resources or LLM tools.</p>
+            <div class="tutorialGrid">
+              <div>
+                <h4>What to enter</h4>
+                <ul>
+                  <li>Choose graph properties: direction, weighting, and static versus dynamic.</li>
+                  <li>Describe what nodes and edges mean in this story.</li>
+                  <li>Select the allowed graph operations implied by the story.</li>
+                  <li>Add only the objectives that the story gives enough evidence to support.</li>
+                </ul>
+              </div>
+              <div>
+                <h4>Toy example</h4>
+                <p class="exampleStory">A warehouse routing team adds two storage zones, creates a direct conveyor from Packing to Loading, and raises the hourly capacity on that conveyor.</p>
+                <p><strong>Possible inputs:</strong> Directed, Weighted, Static; nodes are warehouse zones; edges are conveyor movements; operations are ModifyNodes, ModifyEdges, and ModifyWeights. Objectives could include Promote OBJ_007 sizeOf for the whole graph and Reduce OBJ_012 distanceBetween for a pair of nodes.</p>
+              </div>
+            </div>
+          </div>
+        </details>
+
         <div class="itemHeader">
           <div>
             <h2 id="itemTitle">Item</h2>
@@ -60,12 +83,6 @@
                 <textarea name="edge_meaning" rows="3" placeholder="What does one edge or relationship represent?"></textarea>
               </label>
             </div>
-            <label>Trace
-              <textarea name="trace" rows="4" placeholder="Quote short phrases and state the inference behind your graph model and objectives."></textarea>
-            </label>
-            <label class="compactNumber">Graph-model confidence
-              <input name="graph_model_confidence" type="number" min="1" max="5" step="1" />
-            </label>
           </section>
 
           <section>
@@ -79,29 +96,6 @@
               <button id="addObjectiveBtn" type="button">Add Objective</button>
             </div>
             <div id="objectivesBox"></div>
-          </section>
-
-          <section>
-            <h3>Ambiguity and Confidence</h3>
-            <div class="controlGrid">
-              <label>Alternative formulation exists
-                <select name="alternative_formulation_exists">
-                  <option value="">Select</option>
-                  <option>Yes</option>
-                  <option>No</option>
-                  <option>Unsure</option>
-                </select>
-              </label>
-              <label>Overall confidence
-                <input name="overall_confidence" type="number" min="1" max="5" step="1" />
-              </label>
-            </div>
-            <label>Alternative formulation description
-              <textarea name="alternative_formulation_description" rows="3"></textarea>
-            </label>
-            <label>Notes
-              <textarea name="notes" rows="4"></textarea>
-            </label>
           </section>
 
           <div class="submitRow">
@@ -124,12 +118,8 @@
           <label>Objective <select data-field="l2_id" class="objectiveSelect"></select></label>
           <label>Action <select data-field="action" class="actionSelect"></select></label>
           <label>Object level <select data-field="object_level" class="objectLevelSelect"></select></label>
-          <label>Confidence <input data-field="confidence" type="number" min="1" max="5" step="1" /></label>
         </div>
         <div class="objectiveHelp" aria-live="polite"></div>
-        <label>Evidence span
-          <textarea data-field="evidence_spans" rows="3" placeholder="Paste the exact phrase(s) that support this objective."></textarea>
-        </label>
       </div>
     </template>
 

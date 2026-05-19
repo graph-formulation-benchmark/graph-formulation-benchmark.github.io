@@ -129,6 +129,51 @@ button.primary, #submitBtn {
   background: var(--accent);
 }
 
+.tutorialPanel {
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  background: var(--panel);
+}
+
+.tutorialPanel summary {
+  cursor: pointer;
+  padding: 14px 16px;
+  font-weight: 700;
+}
+
+.tutorialBody {
+  border-top: 1px solid var(--line);
+  padding: 14px 16px 16px;
+  color: var(--muted);
+}
+
+.tutorialGrid {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+  gap: 18px;
+  margin-top: 12px;
+}
+
+.tutorialGrid h4 {
+  margin: 0 0 8px;
+  color: var(--text);
+  font-size: 14px;
+}
+
+.tutorialGrid ul {
+  margin: 0;
+  padding-left: 18px;
+}
+
+.tutorialGrid li + li {
+  margin-top: 5px;
+}
+
+.exampleStory {
+  color: var(--text);
+  margin-bottom: 8px;
+}
+
 .itemList {
   display: grid;
   gap: 6px;
@@ -310,6 +355,10 @@ textarea {
 
 @media (max-width: 860px) {
   .layout {
+    grid-template-columns: 1fr;
+  }
+
+  .tutorialGrid {
     grid-template-columns: 1fr;
   }
 

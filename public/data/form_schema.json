@@ -696,15 +696,6 @@
     "type": "string",
     "prompt": "What does one edge or relationship represent?"
   },
-  "trace": {
-    "type": "string",
-    "prompt": "Concise evidence: quote short phrases and state the inference behind the graph model and objectives."
-  },
-  "graph_model_confidence": {
-    "type": "integer",
-    "min": 1,
-    "max": 5
-  },
   "active_objectives": {
     "type": "list",
     "item_schema": {
@@ -764,14 +755,6 @@
           "Pair of nodes",
           "Unclear"
         ]
-      },
-      "evidence_spans": {
-        "type": "list_of_strings"
-      },
-      "confidence": {
-        "type": "integer",
-        "min": 1,
-        "max": 5
       }
     }
   },
@@ -798,18 +781,5 @@
     ],
     "options_source": "operation_definitions.md",
     "allow_other": true
-  },
-  "alternative_formulation_exists": {
-    "type": "single_choice",
-    "options": [
-      "Yes",
-      "No",
-      "Unsure"
-    ]
-  },
-  "overall_confidence": {
-    "type": "integer",
-    "min": 1,
-    "max": 5
   }
 }

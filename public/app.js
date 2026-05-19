@@ -176,14 +176,8 @@
       time_model: "",
       node_meaning: "",
       edge_meaning: "",
-      trace: "",
-      graph_model_confidence: "",
       allowed_operations: [],
       active_objectives: [],
-      alternative_formulation_exists: "",
-      alternative_formulation_description: "",
-      overall_confidence: "",
-      notes: "",
       submitted: false,
       submitted_at: ""
     };
@@ -209,11 +203,7 @@
     fillSelect(node.querySelector(".objectLevelSelect"), state.schema.active_objectives.item_schema.object_level.options || []);
     node.querySelectorAll("[data-field]").forEach((el) => {
       const field = el.dataset.field;
-      if (field === "evidence_spans") {
-        el.value = Array.isArray(value[field]) ? value[field].join("\n") : (value[field] || "");
-      } else {
-        el.value = value[field] || "";
-      }
+      el.value = value[field] || "";
     });
     node.querySelector(".objectiveSelect").addEventListener("change", () => renderObjectiveHelp(node));
     node.querySelector(".removeObjectiveBtn").addEventListener("click", () => {
@@ -269,12 +259,6 @@
     form.time_model.value = response.time_model || "";
     form.node_meaning.value = response.node_meaning || "";
     form.edge_meaning.value = response.edge_meaning || "";
-    form.trace.value = response.trace || response.graph_model_evidence || "";
-    form.graph_model_confidence.value = response.graph_model_confidence || "";
-    form.alternative_formulation_exists.value = response.alternative_formulation_exists || "";
-    form.alternative_formulation_description.value = response.alternative_formulation_description || "";
-    form.overall_confidence.value = response.overall_confidence || "";
-    form.notes.value = response.notes || "";
 
     document.querySelectorAll("[name=allowed_operations]").forEach((input) => {
       input.checked = (response.allowed_operations || []).includes(input.value);
@@ -297,17 +281,13 @@
       const obj = {};
       card.querySelectorAll("[data-field]").forEach((el) => {
         const field = el.dataset.field;
-        if (field === "evidence_spans") {
-          obj[field] = el.value.split("\n").map((x) => x.trim()).filter(Boolean);
-        } else {
-          obj[field] = el.value;
-        }
+        obj[field] = el.value;
       });
       if (obj.l2_id) {
         obj.objective_id = obj.l2_id;
       }
       return obj;
-    }).filter((obj) => obj.l2_id || obj.action || obj.object_level || obj.evidence_spans.length);
+    }).filter((obj) => obj.l2_id || obj.action || obj.object_level);
   }
 
   function saveFromForm() {
@@ -320,35 +300,44 @@
     response.time_model = form.time_model.value;
     response.node_meaning = form.node_meaning.value;
     response.edge_meaning = form.edge_meaning.value;
-    response.trace = form.trace.value;
-    response.graph_model_confidence = form.graph_model_confidence.value;
     response.allowed_operations = Array.from(document.querySelectorAll("[name=allowed_operations]:checked")).map((x) => x.value);
     response.active_objectives = collectObjectives();
-    response.alternative_formulation_exists = form.alternative_formulation_exists.value;
-    response.alternative_formulation_description = form.alternative_formulation_description.value;
-    response.overall_confidence = form.overall_confidence.value;
-    response.notes = form.notes.value;
     state.responses[item.human_item_id] = response;
     saveLocalResponses();
   }
 
   function responsePayload(response) {
-    const copy = { ...response };
-    delete copy.submitted;
-    delete copy.submitted_at;
-    copy.graph_model = {
-      property_tags: [copy.direction, copy.weighting, copy.time_model].filter((value) => value && value !== "Unclear"),
-      node_meaning: splitMeaning(copy.node_meaning),
-      edge_meaning: splitMeaning(copy.edge_meaning)
-    };
-    copy.operations = copy.allowed_operations || [];
-    copy.identified_objectives = (copy.active_objectives || []).map((obj) => ({
+    const activeObjectives = (response.active_objectives || []).map((obj) => ({
+      l2_id: obj.l2_id || obj.objective_id || "",
       objective_id: obj.objective_id || obj.l2_id || "",
       action: obj.action || "",
       object_level: obj.object_level || ""
     })).filter((obj) => obj.objective_id || obj.action || obj.object_level);
-    copy.trace = copy.trace || copy.graph_model_evidence || "";
-    return copy;
+    const identifiedObjectives = activeObjectives.map((obj) => ({
+      objective_id: obj.objective_id || obj.l2_id || "",
+      action: obj.action || "",
+      object_level: obj.object_level || ""
+    }));
+    const allowedOperations = response.allowed_operations || [];
+    return {
+      annotator_id: response.annotator_id || state.assignment.annotator_id,
+      assignment_id: response.assignment_id || state.assignment.assignment_id,
+      human_item_id: response.human_item_id || "",
+      direction: response.direction || "",
+      weighting: response.weighting || "",
+      time_model: response.time_model || "",
+      node_meaning: response.node_meaning || "",
+      edge_meaning: response.edge_meaning || "",
+      allowed_operations: allowedOperations,
+      active_objectives: activeObjectives,
+      graph_model: {
+        property_tags: [response.direction, response.weighting, response.time_model].filter((value) => value && value !== "Unclear"),
+        node_meaning: splitMeaning(response.node_meaning),
+        edge_meaning: splitMeaning(response.edge_meaning)
+      },
+      operations: allowedOperations,
+      identified_objectives: identifiedObjectives
+    };
   }
 
   function splitMeaning(value) {
