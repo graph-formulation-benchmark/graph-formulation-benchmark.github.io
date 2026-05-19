@@ -46,6 +46,14 @@ def normalize_schema(schema: Dict[str, Any]) -> Dict[str, Any]:
     return keep
 
 
+def public_assignment_item(row: Dict[str, Any]) -> Dict[str, Any]:
+    return {
+        "human_item_id": row.get("human_item_id", ""),
+        "story_text": row.get("story_text", ""),
+        "instructions": row.get("instructions", "Read the story and infer the graph formulation. Do not use external resources or LLM tools."),
+    }
+
+
 def read_assignment_rows(path: Path) -> List[Dict[str, str]]:
     with path.open("r", encoding="utf-8", newline="") as f:
         return list(csv.DictReader(f))
@@ -118,7 +126,7 @@ def main() -> int:
             "assignment_id": assignment_id,
             "annotator_id": annotator,
             "phase": args.phase,
-            "items": [items[item_id] for item_id in selected],
+            "items": [public_assignment_item(items[item_id]) for item_id in selected],
         }
         h = token_hash(token)
         if args.write_static_assignments:

@@ -228,7 +228,7 @@
     const item = currentItem();
     const response = currentResponse();
     $("#itemTitle").textContent = item.human_item_id;
-    $("#itemSubhead").textContent = `${item.domain_hint} · ${item.genre} · ${item.macro_family}`;
+    $("#itemSubhead").textContent = "";
     $("#storyText").textContent = item.story_text;
 
     const form = $("#responseForm");
