@@ -136,7 +136,7 @@
     const levels = row?.applicable_objects?.length
       ? row.applicable_objects
       : (state.schema.active_objectives.item_schema.object_level.options || []);
-    return Array.from(new Set([...levels, "Unclear"]));
+    return Array.from(new Set(levels));
   }
 
   function refreshObjectLevelSelect(card, preferredValue = "") {
@@ -185,9 +185,9 @@
   }
 
   function initStaticControls() {
-    fillSelect(document.querySelector("[name=direction]"), ["Directed", "Undirected", "Unclear"]);
-    fillSelect(document.querySelector("[name=weighting]"), ["Weighted", "Unweighted", "Unclear"]);
-    const timeOptions = state.schema.time_model?.options || ["Static", "Dynamic", "Unclear"];
+    fillSelect(document.querySelector("[name=direction]"), ["Directed", "Undirected"]);
+    fillSelect(document.querySelector("[name=weighting]"), ["Weighted", "Unweighted"]);
+    const timeOptions = state.schema.time_model?.options || ["Static", "Dynamic"];
     fillSelect(document.querySelector("[name=time_model]"), timeOptions);
 
     const ops = state.schema.operations?.options || state.schema.allowed_operations?.options || [];
@@ -238,7 +238,7 @@
     const template = $("#objectiveTemplate");
     const node = template.content.firstElementChild.cloneNode(true);
     fillObjectiveSelect(node.querySelector(".objectiveSelect"));
-    fillSelect(node.querySelector(".actionSelect"), state.schema.active_objectives.item_schema.action.options || ["Promote", "Reduce", "Unclear"]);
+    fillSelect(node.querySelector(".actionSelect"), state.schema.active_objectives.item_schema.action.options || ["Promote", "Reduce"]);
     node.querySelector(".objectiveSelect").value = value.l2_id || value.objective_id || "";
     node.querySelector(".actionSelect").value = value.action || "";
     refreshObjectLevelSelect(node, value.object_level || "");
@@ -372,7 +372,7 @@
       allowed_operations: allowedOperations,
       active_objectives: activeObjectives,
       graph_model: {
-        property_tags: [response.direction, response.weighting, response.time_model].filter((value) => value && value !== "Unclear"),
+        property_tags: [response.direction, response.weighting, response.time_model].filter(Boolean),
         node_meaning: splitMeaning(response.node_meaning),
         edge_meaning: splitMeaning(response.edge_meaning)
       },

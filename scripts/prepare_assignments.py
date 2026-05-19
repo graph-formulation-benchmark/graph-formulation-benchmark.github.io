@@ -26,6 +26,14 @@ def write_json(path: Path, payload: Any) -> None:
         f.write("\n")
 
 
+def remove_unclear_options(value: Any) -> Any:
+    if isinstance(value, dict):
+        return {key: remove_unclear_options(item) for key, item in value.items()}
+    if isinstance(value, list):
+        return [remove_unclear_options(item) for item in value if item != "Unclear"]
+    return value
+
+
 def normalize_schema(schema: Dict[str, Any]) -> Dict[str, Any]:
     active_objectives = json.loads(json.dumps(schema.get("active_objectives", {})))
     item_schema = active_objectives.get("item_schema", {})
@@ -43,7 +51,7 @@ def normalize_schema(schema: Dict[str, Any]) -> Dict[str, Any]:
         "operations": schema.get("operations", schema.get("allowed_operations", {})),
         "allowed_operations": schema.get("allowed_operations", {}),
     }
-    return keep
+    return remove_unclear_options(keep)
 
 
 def public_assignment_item(row: Dict[str, Any]) -> Dict[str, Any]:

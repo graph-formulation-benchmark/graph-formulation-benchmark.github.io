@@ -668,24 +668,21 @@
     "type": "single_choice",
     "options": [
       "Directed",
-      "Undirected",
-      "Unclear"
+      "Undirected"
     ]
   },
   "weighting": {
     "type": "single_choice",
     "options": [
       "Weighted",
-      "Unweighted",
-      "Unclear"
+      "Unweighted"
     ]
   },
   "time_model": {
     "type": "single_choice",
     "options": [
       "Static",
-      "Dynamic",
-      "Unclear"
+      "Dynamic"
     ]
   },
   "node_meaning": {
@@ -741,8 +738,7 @@
         "type": "single_choice",
         "options": [
           "Promote",
-          "Reduce",
-          "Unclear"
+          "Reduce"
         ]
       },
       "object_level": {
@@ -752,8 +748,7 @@
           "Subgraph",
           "Node",
           "Edge",
-          "Pair of nodes",
-          "Unclear"
+          "Pair of nodes"
         ]
       }
     }
