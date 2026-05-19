@@ -45,7 +45,28 @@
               <div>
                 <h4>Toy example</h4>
                 <p class="exampleStory">A warehouse routing team adds two storage zones, creates a direct conveyor from Packing to Loading, and raises the hourly capacity on that conveyor.</p>
-                <p><strong>Possible inputs:</strong> Directed, Weighted, Static; nodes are warehouse zones; edges are conveyor movements; operations are ModifyNodes, ModifyEdges, and ModifyWeights. Objectives could include Promote OBJ_007 sizeOf for the whole graph and Reduce OBJ_012 distanceBetween for a pair of nodes.</p>
+                <dl class="exampleInputs">
+                  <div>
+                    <dt>Graph properties</dt>
+                    <dd>Directed, Weighted, Static</dd>
+                  </div>
+                  <div>
+                    <dt>Node meaning</dt>
+                    <dd>Warehouse zone</dd>
+                  </div>
+                  <div>
+                    <dt>Edge meaning</dt>
+                    <dd>Conveyor movement from one zone to another</dd>
+                  </div>
+                  <div>
+                    <dt>Operations</dt>
+                    <dd>ModifyNodes, ModifyEdges, ModifyWeights</dd>
+                  </div>
+                  <div>
+                    <dt>Example objectives</dt>
+                    <dd>Promote OBJ_007 sizeOf for the whole graph; Reduce OBJ_012 distanceBetween for a pair of nodes</dd>
+                  </div>
+                </dl>
               </div>
             </div>
           </div>

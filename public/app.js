@@ -85,28 +85,67 @@
 
   function compactList(values, limit = 4) {
     if (!Array.isArray(values)) return "";
-    return values.map((x) => String(x).trim()).filter(Boolean).slice(0, limit).join("; ");
+    return values.map((x) => String(x).trim()).filter(Boolean).slice(0, limit);
+  }
+
+  function appendHelpList(parent, label, values) {
+    const items = Array.isArray(values) ? values.map((x) => String(x).trim()).filter(Boolean) : [];
+    if (!items.length) return;
+    const section = document.createElement("div");
+    section.className = "objectiveHelpSection";
+    const heading = document.createElement("strong");
+    heading.textContent = label;
+    section.appendChild(heading);
+    const list = document.createElement("ul");
+    items.forEach((item) => {
+      const li = document.createElement("li");
+      li.textContent = item;
+      list.appendChild(li);
+    });
+    section.appendChild(list);
+    parent.appendChild(section);
   }
 
   function renderObjectiveHelp(card) {
     const select = card.querySelector(".objectiveSelect");
     const help = card.querySelector(".objectiveHelp");
     const row = objectiveById(select.value);
+    help.innerHTML = "";
     if (!row) {
       help.textContent = "Select an objective to see its definition, story cues, applicable object levels, and boundary rules.";
       return;
     }
     const cues = row.story_cues || {};
-    const lines = [
-      `${row.id} ${row.name}`,
-      row.definition || "",
-      row.applicable_objects?.length ? `Applicable objects: ${row.applicable_objects.join(", ")}` : "",
-      compactList(cues.positive) ? `Positive cues: ${compactList(cues.positive)}` : "",
-      compactList(cues.negative) ? `Negative cues: ${compactList(cues.negative)}` : "",
-      compactList(cues.avoid_phrases, 3) ? `Avoid confusing with: ${compactList(cues.avoid_phrases, 3)}` : "",
-      compactList(row.boundary_rules, 3) ? `Boundary rules: ${compactList(row.boundary_rules, 3)}` : ""
-    ].filter(Boolean);
-    help.textContent = lines.join("\n");
+    const title = document.createElement("h4");
+    title.textContent = `${row.id} ${row.name}`;
+    help.appendChild(title);
+    if (row.definition) {
+      const definition = document.createElement("p");
+      definition.textContent = row.definition;
+      help.appendChild(definition);
+    }
+    appendHelpList(help, "Applicable object levels", row.applicable_objects || []);
+    appendHelpList(help, "Positive cues", compactList(cues.positive));
+    appendHelpList(help, "Negative cues", compactList(cues.negative));
+    appendHelpList(help, "Avoid confusing with", compactList(cues.avoid_phrases, 3));
+    appendHelpList(help, "Boundary rules", compactList(row.boundary_rules, 3));
+  }
+
+  function objectLevelsForObjective(objectiveId) {
+    const row = objectiveById(objectiveId);
+    const levels = row?.applicable_objects?.length
+      ? row.applicable_objects
+      : (state.schema.active_objectives.item_schema.object_level.options || []);
+    return Array.from(new Set([...levels, "Unclear"]));
+  }
+
+  function refreshObjectLevelSelect(card, preferredValue = "") {
+    const objectiveId = card.querySelector(".objectiveSelect").value;
+    const select = card.querySelector(".objectLevelSelect");
+    const validLevels = objectLevelsForObjective(objectiveId);
+    const nextValue = validLevels.includes(preferredValue) ? preferredValue : "";
+    fillSelect(select, validLevels);
+    select.value = nextValue;
   }
 
   function fillObjectiveSelect(select) {
@@ -200,12 +239,14 @@
     const node = template.content.firstElementChild.cloneNode(true);
     fillObjectiveSelect(node.querySelector(".objectiveSelect"));
     fillSelect(node.querySelector(".actionSelect"), state.schema.active_objectives.item_schema.action.options || ["Promote", "Reduce", "Unclear"]);
-    fillSelect(node.querySelector(".objectLevelSelect"), state.schema.active_objectives.item_schema.object_level.options || []);
-    node.querySelectorAll("[data-field]").forEach((el) => {
-      const field = el.dataset.field;
-      el.value = value[field] || "";
+    node.querySelector(".objectiveSelect").value = value.l2_id || value.objective_id || "";
+    node.querySelector(".actionSelect").value = value.action || "";
+    refreshObjectLevelSelect(node, value.object_level || "");
+    node.querySelector(".objectiveSelect").addEventListener("change", () => {
+      refreshObjectLevelSelect(node, node.querySelector(".objectLevelSelect").value);
+      renderObjectiveHelp(node);
+      saveFromForm();
     });
-    node.querySelector(".objectiveSelect").addEventListener("change", () => renderObjectiveHelp(node));
     node.querySelector(".removeObjectiveBtn").addEventListener("click", () => {
       node.remove();
       saveFromForm();

@@ -174,6 +174,27 @@ button.primary, #submitBtn {
   margin-bottom: 8px;
 }
 
+.exampleInputs {
+  display: grid;
+  gap: 7px;
+  margin: 10px 0 0;
+}
+
+.exampleInputs div {
+  display: grid;
+  grid-template-columns: 132px minmax(0, 1fr);
+  gap: 10px;
+}
+
+.exampleInputs dt {
+  color: var(--text);
+  font-weight: 700;
+}
+
+.exampleInputs dd {
+  margin: 0;
+}
+
 .itemList {
   display: grid;
   gap: 6px;
@@ -317,7 +338,6 @@ textarea {
 }
 
 .objectiveHelp {
-  white-space: pre-wrap;
   color: var(--muted);
   background: #f3f6fa;
   border: 1px solid var(--line);
@@ -326,6 +346,41 @@ textarea {
   margin: 12px 0;
   line-height: 1.45;
   font-size: 13px;
+}
+
+.objectiveHelp h4 {
+  margin: 0 0 6px;
+  color: var(--text);
+  font-size: 14px;
+}
+
+.objectiveHelp p {
+  margin-bottom: 9px;
+}
+
+.objectiveHelpSection {
+  display: grid;
+  grid-template-columns: 152px minmax(0, 1fr);
+  gap: 10px;
+  padding-top: 8px;
+  border-top: 1px solid #e2e8f0;
+}
+
+.objectiveHelpSection + .objectiveHelpSection {
+  margin-top: 8px;
+}
+
+.objectiveHelpSection strong {
+  color: var(--text);
+}
+
+.objectiveHelpSection ul {
+  margin: 0;
+  padding-left: 17px;
+}
+
+.objectiveHelpSection li + li {
+  margin-top: 3px;
 }
 
 .removeObjectiveBtn {
@@ -360,6 +415,12 @@ textarea {
 
   .tutorialGrid {
     grid-template-columns: 1fr;
+  }
+
+  .exampleInputs div,
+  .objectiveHelpSection {
+    grid-template-columns: 1fr;
+    gap: 4px;
   }
 
   .sidebar {
