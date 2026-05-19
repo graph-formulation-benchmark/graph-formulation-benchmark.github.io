@@ -271,6 +271,18 @@ textarea {
   margin-bottom: 12px;
 }
 
+.objectiveHelp {
+  white-space: pre-wrap;
+  color: var(--muted);
+  background: #f3f6fa;
+  border: 1px solid var(--line);
+  border-radius: 6px;
+  padding: 10px 12px;
+  margin: 12px 0;
+  line-height: 1.45;
+  font-size: 13px;
+}
+
 .removeObjectiveBtn {
   color: var(--bad);
 }

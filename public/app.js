@@ -79,6 +79,36 @@
     }));
   }
 
+  function objectiveById(id) {
+    return (state.schema.objective_taxonomy || []).find((row) => row.id === id) || null;
+  }
+
+  function compactList(values, limit = 4) {
+    if (!Array.isArray(values)) return "";
+    return values.map((x) => String(x).trim()).filter(Boolean).slice(0, limit).join("; ");
+  }
+
+  function renderObjectiveHelp(card) {
+    const select = card.querySelector(".objectiveSelect");
+    const help = card.querySelector(".objectiveHelp");
+    const row = objectiveById(select.value);
+    if (!row) {
+      help.textContent = "Select an objective to see its definition, story cues, applicable object levels, and boundary rules.";
+      return;
+    }
+    const cues = row.story_cues || {};
+    const lines = [
+      `${row.id} ${row.name}`,
+      row.definition || "",
+      row.applicable_objects?.length ? `Applicable objects: ${row.applicable_objects.join(", ")}` : "",
+      compactList(cues.positive) ? `Positive cues: ${compactList(cues.positive)}` : "",
+      compactList(cues.negative) ? `Negative cues: ${compactList(cues.negative)}` : "",
+      compactList(cues.avoid_phrases, 3) ? `Avoid confusing with: ${compactList(cues.avoid_phrases, 3)}` : "",
+      compactList(row.boundary_rules, 3) ? `Boundary rules: ${compactList(row.boundary_rules, 3)}` : ""
+    ].filter(Boolean);
+    help.textContent = lines.join("\n");
+  }
+
   function fillObjectiveSelect(select) {
     select.innerHTML = "";
     select.appendChild(option("", "Select"));
@@ -185,11 +215,13 @@
         el.value = value[field] || "";
       }
     });
+    node.querySelector(".objectiveSelect").addEventListener("change", () => renderObjectiveHelp(node));
     node.querySelector(".removeObjectiveBtn").addEventListener("click", () => {
       node.remove();
       saveFromForm();
     });
     $("#objectivesBox").appendChild(node);
+    renderObjectiveHelp(node);
     refreshObjectiveNumbers();
   }
 
