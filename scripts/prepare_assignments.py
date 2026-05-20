@@ -99,13 +99,21 @@ def parse_args() -> argparse.Namespace:
     parser.add_argument("--human_eval_dir", required=True)
     parser.add_argument("--out", default="survey_web")
     parser.add_argument("--max_items_per_annotator", type=int, default=15)
-    parser.add_argument("--phase", default="blind_recovery")
+    parser.add_argument("--phase", default="blind_recovery", help="Phase name or comma-separated phase names.")
     parser.add_argument(
         "--write_static_assignments",
         action="store_true",
         help="Also write token-named assignment JSON files under public/data/assignments. Do not use for public repos.",
     )
     return parser.parse_args()
+
+
+def phase_config(phase: str, human_eval: Path) -> tuple[str, Path, Path]:
+    if phase == "formulation_ab":
+        return "formulation_pair_id", human_eval / "packets/formulation_ab_pairs.jsonl", human_eval / "forms/formulation_ab_form_schema.json"
+    if phase == "story_quality_ab":
+        return "story_quality_pair_id", human_eval / "packets/story_quality_ab_pairs.jsonl", human_eval / "forms/story_quality_ab_form_schema.json"
+    return "human_item_id", human_eval / "packets/blind_recovery_items.jsonl", human_eval / "forms/blind_recovery_form_schema.json"
 
 
 def main() -> int:
@@ -117,20 +125,17 @@ def main() -> int:
     public_data.mkdir(parents=True, exist_ok=True)
     private.mkdir(parents=True, exist_ok=True)
 
-    if args.phase == "formulation_ab":
-        item_key = "formulation_pair_id"
-        packet_path = human_eval / "packets/formulation_ab_pairs.jsonl"
-        schema_path = human_eval / "forms/formulation_ab_form_schema.json"
-    elif args.phase == "story_quality_ab":
-        item_key = "story_quality_pair_id"
-        packet_path = human_eval / "packets/story_quality_ab_pairs.jsonl"
-        schema_path = human_eval / "forms/story_quality_ab_form_schema.json"
-    else:
-        item_key = "human_item_id"
-        packet_path = human_eval / "packets/blind_recovery_items.jsonl"
-        schema_path = human_eval / "forms/blind_recovery_form_schema.json"
-    items = {row[item_key]: row for row in load_jsonl(packet_path)}
-    schema = json.loads(schema_path.read_text(encoding="utf-8"))
+    phases = [phase.strip() for phase in args.phase.split(",") if phase.strip()]
+    if not phases:
+        raise SystemExit("At least one --phase is required.")
+    phase_items: Dict[str, Dict[str, Dict[str, Any]]] = {}
+    phase_item_keys: Dict[str, str] = {}
+    schemas: Dict[str, Dict[str, Any]] = {}
+    for phase in phases:
+        item_key, packet_path, schema_path = phase_config(phase, human_eval)
+        phase_item_keys[phase] = item_key
+        phase_items[phase] = {row[item_key]: row for row in load_jsonl(packet_path)}
+        schemas[phase] = json.loads(schema_path.read_text(encoding="utf-8"))
     objective_schema_path = human_eval / "forms/blind_recovery_form_schema.json"
     objective_schema = json.loads(objective_schema_path.read_text(encoding="utf-8")) if objective_schema_path.exists() else {}
     existing_taxonomy_path = public_data / "objective_taxonomy.json"
@@ -140,56 +145,60 @@ def main() -> int:
             objective_schema["objective_taxonomy"] = existing_taxonomy
     assignments = read_assignment_rows(human_eval / "assignment/item_assignment.csv")
 
-    write_json(public_data / "form_schema.json", normalize_schema(schema if args.phase not in {"formulation_ab", "story_quality_ab"} else objective_schema))
+    first_phase = phases[0]
+    write_json(public_data / "form_schema.json", normalize_schema(schemas[first_phase] if first_phase not in {"formulation_ab", "story_quality_ab"} else objective_schema))
     write_json(public_data / "objective_taxonomy.json", objective_schema.get("objective_taxonomy", []))
 
-    by_annotator: Dict[str, List[str]] = {}
+    by_phase_annotator: Dict[str, Dict[str, List[str]]] = {phase: {} for phase in phases}
     for row in assignments:
-        if row.get("phase") != args.phase:
+        phase = row.get("phase", "")
+        if phase not in phase_items:
             continue
+        item_key = phase_item_keys[phase]
         annotator = row.get("annotator_id", "")
         item_id = row.get(item_key, "")
-        if not annotator or item_id not in items:
+        if not annotator or item_id not in phase_items[phase]:
             continue
-        by_annotator.setdefault(annotator, []).append(item_id)
+        by_phase_annotator[phase].setdefault(annotator, []).append(item_id)
 
     token_rows: List[Dict[str, str]] = []
     seed_sql = ["-- Generated assignment tokens. Run after supabase_schema.sql."]
-    if args.phase:
-        seed_sql.append(f"update study_tokens set active = false where assignment_id like {sql_literal(args.phase + '_%')};")
+    for phase in phases:
+        seed_sql.append(f"update study_tokens set active = false where assignment_id like {sql_literal(phase + '_%')};")
     seed_sql.append("insert into study_tokens (token_hash, annotator_id, assignment_id, active) values")
     values: List[str] = []
     assignment_seed_sql = ["-- Generated assignment payloads. Run after supabase_seed_tokens.sql."]
-    if args.phase:
-        assignment_seed_sql.append(f"update survey_assignments set active = false where assignment_json->>'phase' = {sql_literal(args.phase)};")
+    for phase in phases:
+        assignment_seed_sql.append(f"update survey_assignments set active = false where assignment_json->>'phase' = {sql_literal(phase)};")
     assignment_seed_sql.append("insert into survey_assignments (token_hash, assignment_json, active) values")
     assignment_values: List[str] = []
-    for annotator in sorted(by_annotator):
-        selected = by_annotator[annotator][: args.max_items_per_annotator]
-        token = secrets.token_urlsafe(18)
-        assignment_id = f"{args.phase}_{annotator}"
-        payload = {
-            "assignment_id": assignment_id,
-            "annotator_id": annotator,
-            "phase": args.phase,
-            "items": [public_assignment_item(items[item_id], args.phase) for item_id in selected],
-        }
-        h = token_hash(token)
-        if args.write_static_assignments:
-            write_json(public_data / "assignments" / f"{token}.json", payload)
-        token_rows.append(
-            {
-                "annotator_id": annotator,
+    for phase in phases:
+        for annotator in sorted(by_phase_annotator[phase]):
+            selected = by_phase_annotator[phase][annotator][: args.max_items_per_annotator]
+            token = secrets.token_urlsafe(18)
+            assignment_id = f"{phase}_{annotator}"
+            payload = {
                 "assignment_id": assignment_id,
-                "token": token,
-                "token_hash": h,
-                "url_path": f"?token={token}",
-                "num_items": str(len(selected)),
+                "annotator_id": annotator,
+                "phase": phase,
+                "items": [public_assignment_item(phase_items[phase][item_id], phase) for item_id in selected],
             }
-        )
-        values.append(f"({sql_literal(h)}, {sql_literal(annotator)}, {sql_literal(assignment_id)}, true)")
-        payload_json = json.dumps(payload, ensure_ascii=False, separators=(",", ":"))
-        assignment_values.append(f"({sql_literal(h)}, {sql_literal(payload_json)}::jsonb, true)")
+            h = token_hash(token)
+            if args.write_static_assignments:
+                write_json(public_data / "assignments" / f"{token}.json", payload)
+            token_rows.append(
+                {
+                    "annotator_id": annotator,
+                    "assignment_id": assignment_id,
+                    "token": token,
+                    "token_hash": h,
+                    "url_path": f"?token={token}",
+                    "num_items": str(len(selected)),
+                }
+            )
+            values.append(f"({sql_literal(h)}, {sql_literal(annotator)}, {sql_literal(assignment_id)}, true)")
+            payload_json = json.dumps(payload, ensure_ascii=False, separators=(",", ":"))
+            assignment_values.append(f"({sql_literal(h)}, {sql_literal(payload_json)}::jsonb, true)")
 
     with (private / "assignment_tokens.csv").open("w", encoding="utf-8", newline="") as f:
         writer = csv.DictWriter(f, fieldnames=["annotator_id", "assignment_id", "token", "token_hash", "url_path", "num_items"])
