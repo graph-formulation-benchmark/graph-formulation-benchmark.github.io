@@ -270,6 +270,27 @@ button.primary, #submitBtn {
   line-height: 1.45;
 }
 
+.contextGrid {
+  display: grid;
+  grid-template-columns: 150px minmax(0, 1fr);
+  gap: 8px 12px;
+  margin: 0 0 14px;
+  padding: 12px;
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  background: #f8fafc;
+}
+
+.contextGrid dt {
+  color: var(--muted);
+  font-weight: 700;
+}
+
+.contextGrid dd {
+  margin: 0;
+  line-height: 1.45;
+}
+
 .candidatePanel {
   border: 1px solid var(--line);
   border-radius: 8px;

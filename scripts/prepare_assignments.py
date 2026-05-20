@@ -59,6 +59,8 @@ def public_assignment_item(row: Dict[str, Any], phase: str) -> Dict[str, Any]:
         return {
             "story_quality_pair_id": row.get("story_quality_pair_id", ""),
             "genre": row.get("genre", ""),
+            "requested_genre": row.get("requested_genre", ""),
+            "context": row.get("context", {}),
             "story_A": row.get("story_A", ""),
             "story_B": row.get("story_B", ""),
             "instructions": row.get("instructions", "Read both stories and choose which is better as a benchmark item."),

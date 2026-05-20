@@ -509,6 +509,26 @@
     $("#progressBar").style.width = total ? `${(done / total) * 100}%` : "0";
   }
 
+  function renderStoryQualityContext(item) {
+    const box = $("#storyQualityContext");
+    const context = item.context || {};
+    const rows = [
+      ["Domain", context.domain || item.domain_context || ""],
+      ["Scenario", context.scenario || item.scenario_context || ""],
+      ["Requested format", context.requested_format || item.requested_genre || item.genre || ""]
+    ].filter((row) => row[1]);
+    box.innerHTML = "";
+    rows.forEach(([label, value]) => {
+      const term = document.createElement("dt");
+      term.textContent = label;
+      const desc = document.createElement("dd");
+      desc.textContent = value;
+      box.appendChild(term);
+      box.appendChild(desc);
+    });
+    box.classList.toggle("hidden", rows.length === 0);
+  }
+
   function renderCurrentItem() {
     const item = currentItem();
     const response = currentResponse();
@@ -537,6 +557,7 @@
       $("#abResponseForm").classList.add("hidden");
       $("#storyQualityForm").classList.remove("hidden");
       $("#storyQualityInstructions").textContent = item.instructions || "";
+      renderStoryQualityContext(item);
       $("#storyA").textContent = item.story_A || "";
       $("#storyB").textContent = item.story_B || "";
       document.querySelectorAll("[name=preferred_story]").forEach((input) => {
@@ -831,13 +852,14 @@
         document.querySelector("h1").textContent = "Story Quality A/B Review";
         document.querySelector(".tutorialPanel summary").textContent = "How to complete this task";
         document.querySelector(".tutorialBody").innerHTML = `
-          <p>Read Story A and Story B. Choose the story that works better as a benchmark item, or choose Tie if neither story is meaningfully better.</p>
+          <p>Read the neutral context, then compare Story A and Story B. Both stories are intended to represent the same benchmark configuration; choose the story that works better as a benchmark item, or choose Tie if neither story is meaningfully better.</p>
           <div class="tutorialGrid">
             <div>
               <h4>What to compare</h4>
               <ul>
                 <li>Naturalness and readability.</li>
                 <li>Internal coherence and realistic domain framing.</li>
+                <li>Fit to the requested format shown in the context panel.</li>
                 <li>Clarity as a benchmark story without keyword-stuffed language.</li>
               </ul>
             </div>
