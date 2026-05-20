@@ -31,6 +31,17 @@ create table if not exists formulation_ab_responses (
   submitted_at timestamptz not null default now()
 );
 
+create table if not exists story_quality_ab_responses (
+  id uuid primary key default gen_random_uuid(),
+  token_hash text not null references study_tokens(token_hash),
+  annotator_id text not null,
+  assignment_id text not null,
+  story_quality_pair_id text not null,
+  response_json jsonb not null,
+  client_version text not null,
+  submitted_at timestamptz not null default now()
+);
+
 create table if not exists survey_assignments (
   token_hash text primary key references study_tokens(token_hash),
   assignment_json jsonb not null,
@@ -41,6 +52,7 @@ create table if not exists survey_assignments (
 alter table study_tokens enable row level security;
 alter table blind_recovery_responses enable row level security;
 alter table formulation_ab_responses enable row level security;
+alter table story_quality_ab_responses enable row level security;
 alter table survey_assignments enable row level security;
 
 drop policy if exists allow_valid_token_assignment_selects on survey_assignments;
@@ -100,6 +112,15 @@ with check (
 drop policy if exists allow_valid_token_inserts on formulation_ab_responses;
 create policy allow_valid_token_inserts
 on formulation_ab_responses
+for insert
+to anon, authenticated
+with check (
+  is_valid_study_submission(token_hash, annotator_id, assignment_id)
+);
+
+drop policy if exists allow_valid_token_inserts on story_quality_ab_responses;
+create policy allow_valid_token_inserts
+on story_quality_ab_responses
 for insert
 to anon, authenticated
 with check (

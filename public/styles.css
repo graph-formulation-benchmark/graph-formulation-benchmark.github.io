@@ -264,6 +264,12 @@ button.primary, #submitBtn {
   gap: 14px;
 }
 
+.formHint {
+  margin: 0 0 12px;
+  color: var(--muted);
+  line-height: 1.45;
+}
+
 .candidatePanel {
   border: 1px solid var(--line);
   border-radius: 8px;

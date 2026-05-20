@@ -55,6 +55,14 @@ def normalize_schema(schema: Dict[str, Any]) -> Dict[str, Any]:
 
 
 def public_assignment_item(row: Dict[str, Any], phase: str) -> Dict[str, Any]:
+    if phase == "story_quality_ab":
+        return {
+            "story_quality_pair_id": row.get("story_quality_pair_id", ""),
+            "genre": row.get("genre", ""),
+            "story_A": row.get("story_A", ""),
+            "story_B": row.get("story_B", ""),
+            "instructions": row.get("instructions", "Read both stories and choose which is better as a benchmark item."),
+        }
     if phase == "formulation_ab":
         return {
             "formulation_pair_id": row.get("formulation_pair_id", ""),
@@ -111,6 +119,10 @@ def main() -> int:
         item_key = "formulation_pair_id"
         packet_path = human_eval / "packets/formulation_ab_pairs.jsonl"
         schema_path = human_eval / "forms/formulation_ab_form_schema.json"
+    elif args.phase == "story_quality_ab":
+        item_key = "story_quality_pair_id"
+        packet_path = human_eval / "packets/story_quality_ab_pairs.jsonl"
+        schema_path = human_eval / "forms/story_quality_ab_form_schema.json"
     else:
         item_key = "human_item_id"
         packet_path = human_eval / "packets/blind_recovery_items.jsonl"
@@ -126,7 +138,7 @@ def main() -> int:
             objective_schema["objective_taxonomy"] = existing_taxonomy
     assignments = read_assignment_rows(human_eval / "assignment/item_assignment.csv")
 
-    write_json(public_data / "form_schema.json", normalize_schema(schema if args.phase != "formulation_ab" else objective_schema))
+    write_json(public_data / "form_schema.json", normalize_schema(schema if args.phase not in {"formulation_ab", "story_quality_ab"} else objective_schema))
     write_json(public_data / "objective_taxonomy.json", objective_schema.get("objective_taxonomy", []))
 
     by_annotator: Dict[str, List[str]] = {}

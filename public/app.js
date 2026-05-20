@@ -19,8 +19,12 @@
     return surveyPhase() === "formulation_ab";
   }
 
+  function isStoryQualityAb() {
+    return surveyPhase() === "story_quality_ab";
+  }
+
   function itemKey(item) {
-    return item.formulation_pair_id || item.human_item_id || item.pair_id || item.triage_id || "";
+    return item.formulation_pair_id || item.story_quality_pair_id || item.human_item_id || item.pair_id || item.triage_id || "";
   }
 
   function showFatal(message) {
@@ -401,6 +405,16 @@
   }
 
   function blankResponse(item) {
+    if (isStoryQualityAb()) {
+      return {
+        annotator_id: state.assignment.annotator_id,
+        assignment_id: state.assignment.assignment_id,
+        story_quality_pair_id: item.story_quality_pair_id,
+        preferred_story: "",
+        submitted: false,
+        submitted_at: ""
+      };
+    }
     if (isFormulationAb()) {
       return {
         annotator_id: state.assignment.annotator_id,
@@ -503,8 +517,10 @@
     $("#storyText").textContent = item.story_text;
 
     if (isFormulationAb()) {
+      $("#singleStoryPanel").classList.remove("hidden");
       $("#responseForm").classList.add("hidden");
       $("#abResponseForm").classList.remove("hidden");
+      $("#storyQualityForm").classList.add("hidden");
       renderCandidate($("#candidateA"), item.candidate_A || {}, item.candidate_B || {});
       renderCandidate($("#candidateB"), item.candidate_B || {}, item.candidate_A || {});
       document.querySelectorAll("[name=preferred_candidate]").forEach((input) => {
@@ -515,6 +531,24 @@
       return;
     }
 
+    if (isStoryQualityAb()) {
+      $("#singleStoryPanel").classList.add("hidden");
+      $("#responseForm").classList.add("hidden");
+      $("#abResponseForm").classList.add("hidden");
+      $("#storyQualityForm").classList.remove("hidden");
+      $("#storyQualityInstructions").textContent = item.instructions || "";
+      $("#storyA").textContent = item.story_A || "";
+      $("#storyB").textContent = item.story_B || "";
+      document.querySelectorAll("[name=preferred_story]").forEach((input) => {
+        input.checked = response.preferred_story === input.value;
+      });
+      renderItemList();
+      renderProgress();
+      return;
+    }
+
+    $("#singleStoryPanel").classList.remove("hidden");
+    $("#storyQualityForm").classList.add("hidden");
     $("#abResponseForm").classList.add("hidden");
     $("#responseForm").classList.remove("hidden");
 
@@ -566,6 +600,14 @@
       saveLocalResponses();
       return;
     }
+    if (isStoryQualityAb()) {
+      const response = currentResponse();
+      const checked = document.querySelector("[name=preferred_story]:checked");
+      response.preferred_story = checked ? checked.value : "";
+      state.responses[itemKey(item)] = response;
+      saveLocalResponses();
+      return;
+    }
     const form = $("#responseForm");
     const response = currentResponse();
     response.direction = form.direction.value;
@@ -580,6 +622,14 @@
   }
 
   function responsePayload(response) {
+    if (response.story_quality_pair_id) {
+      return {
+        annotator_id: response.annotator_id || state.assignment.annotator_id,
+        assignment_id: response.assignment_id || state.assignment.assignment_id,
+        story_quality_pair_id: response.story_quality_pair_id || "",
+        preferred_story: response.preferred_story || ""
+      };
+    }
     if (response.formulation_pair_id) {
       return {
         annotator_id: response.annotator_id || state.assignment.annotator_id,
@@ -639,6 +689,10 @@
       setStatus("Choose Candidate A, Candidate B, or Tie before submitting");
       return;
     }
+    if (isStoryQualityAb() && !response.preferred_story) {
+      setStatus("Choose Story A, Story B, or Tie before submitting");
+      return;
+    }
     response.submitted = true;
     response.submitted_at = new Date().toISOString();
     saveLocalResponses();
@@ -650,9 +704,28 @@
     }
 
     const cfg = window.SURVEY_CONFIG || {};
-    const table = isFormulationAb() ? "formulation_ab_responses" : "blind_recovery_responses";
-    const payload = isFormulationAb()
-      ? {
+    let table = "blind_recovery_responses";
+    let payload = {
+      token_hash: state.tokenHash,
+      annotator_id: state.assignment.annotator_id,
+      assignment_id: state.assignment.assignment_id,
+      human_item_id: response.human_item_id,
+      response_json: responsePayload(response),
+      client_version: cfg.CLIENT_VERSION || "gfm-human-eval-web"
+    };
+    if (isStoryQualityAb()) {
+      table = "story_quality_ab_responses";
+      payload = {
+        token_hash: state.tokenHash,
+        annotator_id: state.assignment.annotator_id,
+        assignment_id: state.assignment.assignment_id,
+        story_quality_pair_id: response.story_quality_pair_id,
+        response_json: responsePayload(response),
+        client_version: cfg.CLIENT_VERSION || "gfm-human-eval-web"
+      };
+    } else if (isFormulationAb()) {
+      table = "formulation_ab_responses";
+      payload = {
           token_hash: state.tokenHash,
           annotator_id: state.assignment.annotator_id,
           assignment_id: state.assignment.assignment_id,
@@ -660,15 +733,8 @@
           human_item_id: response.human_item_id || "",
           response_json: responsePayload(response),
           client_version: cfg.CLIENT_VERSION || "gfm-human-eval-web"
-        }
-      : {
-          token_hash: state.tokenHash,
-          annotator_id: state.assignment.annotator_id,
-          assignment_id: state.assignment.assignment_id,
-          human_item_id: response.human_item_id,
-          response_json: responsePayload(response),
-          client_version: cfg.CLIENT_VERSION || "gfm-human-eval-web"
         };
+    }
     const { error } = await state.supabase.from(table).insert(payload);
     if (error) {
       response.submitted = false;
@@ -702,6 +768,8 @@
     $("#submitBtn").addEventListener("click", submitCurrentItem);
     $("#saveAbBtn").addEventListener("click", saveFromForm);
     $("#submitAbBtn").addEventListener("click", submitCurrentItem);
+    $("#saveStoryQualityBtn").addEventListener("click", saveFromForm);
+    $("#submitStoryQualityBtn").addEventListener("click", submitCurrentItem);
     $("#exportBtn").addEventListener("click", exportJsonl);
     $("#prevBtn").addEventListener("click", () => {
       saveFromForm();
@@ -715,6 +783,7 @@
     });
     $("#responseForm").addEventListener("change", saveFromForm);
     $("#abResponseForm").addEventListener("change", saveFromForm);
+    $("#storyQualityForm").addEventListener("change", saveFromForm);
   }
 
   async function boot() {
@@ -754,6 +823,30 @@
                 <li>Highlighted rows show where A and B differ; focus on whether those differences are supported by the story.</li>
                 <li>Select Tie when both candidates are equally plausible or equally unsupported.</li>
                 <li>Do not use external resources or LLM tools.</li>
+              </ul>
+            </div>
+          </div>
+        `;
+      } else if (isStoryQualityAb()) {
+        document.querySelector("h1").textContent = "Story Quality A/B Review";
+        document.querySelector(".tutorialPanel summary").textContent = "How to complete this task";
+        document.querySelector(".tutorialBody").innerHTML = `
+          <p>Read Story A and Story B. Choose the story that works better as a benchmark item, or choose Tie if neither story is meaningfully better.</p>
+          <div class="tutorialGrid">
+            <div>
+              <h4>What to compare</h4>
+              <ul>
+                <li>Naturalness and readability.</li>
+                <li>Internal coherence and realistic domain framing.</li>
+                <li>Clarity as a benchmark story without keyword-stuffed language.</li>
+              </ul>
+            </div>
+            <div>
+              <h4>What not to do</h4>
+              <ul>
+                <li>Do not try to solve the graph formulation.</li>
+                <li>Do not use external resources or LLM tools.</li>
+                <li>Do not infer anything from story order or item IDs.</li>
               </ul>
             </div>
           </div>

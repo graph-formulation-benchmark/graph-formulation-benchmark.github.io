@@ -83,7 +83,7 @@
           </div>
         </div>
 
-        <article class="storyPanel">
+        <article id="singleStoryPanel" class="storyPanel">
           <h3>Story</h3>
           <div id="storyText" class="storyText"></div>
         </article>
@@ -115,6 +115,37 @@
           <div class="submitRow">
             <button id="saveAbBtn" type="button">Save Progress</button>
             <button id="submitAbBtn" type="button">Submit Item</button>
+          </div>
+        </form>
+
+        <form id="storyQualityForm" class="formPanel hidden">
+          <section>
+            <h3>Story Quality Comparison</h3>
+            <p id="storyQualityInstructions" class="formHint"></p>
+            <div class="candidateGrid">
+              <article class="candidatePanel">
+                <h4>Story A</h4>
+                <div id="storyA" class="storyText"></div>
+              </article>
+              <article class="candidatePanel">
+                <h4>Story B</h4>
+                <div id="storyB" class="storyText"></div>
+              </article>
+            </div>
+          </section>
+
+          <section>
+            <h3>Which story is better as a benchmark item?</h3>
+            <div class="choiceGrid">
+              <label><input type="radio" name="preferred_story" value="A" /> Story A</label>
+              <label><input type="radio" name="preferred_story" value="B" /> Story B</label>
+              <label><input type="radio" name="preferred_story" value="Tie" /> Tie / no meaningful difference</label>
+            </div>
+          </section>
+
+          <div class="submitRow">
+            <button id="saveStoryQualityBtn" type="button">Save Progress</button>
+            <button id="submitStoryQualityBtn" type="button">Submit Item</button>
           </div>
         </form>
 
