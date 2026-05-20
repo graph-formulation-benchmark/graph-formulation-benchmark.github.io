@@ -300,8 +300,7 @@ button.primary, #submitBtn {
 }
 
 .candidateProperties div,
-.candidateObjectiveHeader,
-.candidateObjectiveRow {
+.candidateObjectiveHeader {
   display: grid;
   grid-template-columns: 128px minmax(0, 1fr);
   gap: 8px;
@@ -319,7 +318,7 @@ button.primary, #submitBtn {
 }
 
 .candidateObjectiveHeader,
-.candidateObjectiveRow {
+.candidateObjectiveMain {
   grid-template-columns: minmax(130px, 1.4fr) minmax(82px, 0.75fr) minmax(112px, 0.9fr);
 }
 
@@ -328,6 +327,80 @@ button.primary, #submitBtn {
   background: transparent;
   padding: 0 9px;
   font-size: 12px;
+}
+
+.candidateObjectiveMain {
+  display: grid;
+  gap: 8px;
+  align-items: start;
+}
+
+.candidateObjectiveRow {
+  display: grid;
+  gap: 8px;
+  border: 1px solid var(--line);
+  border-radius: 6px;
+  padding: 8px 9px;
+  background: #f8fafc;
+}
+
+.candidateObjectiveDetails {
+  color: var(--muted);
+  font-size: 13px;
+  line-height: 1.45;
+}
+
+.candidateObjectiveDetails p {
+  margin: 0;
+}
+
+.candidateObjectiveMeta {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 6px;
+  margin-top: 7px;
+}
+
+.candidateObjectiveMeta strong {
+  color: var(--text);
+  font-size: 12px;
+}
+
+.candidateObjectiveMeta span {
+  display: inline-flex;
+  border: 1px solid #d8dee8;
+  border-radius: 999px;
+  background: white;
+  padding: 2px 7px;
+  line-height: 1.25;
+}
+
+.candidateObjectiveMore {
+  margin-top: 7px;
+}
+
+.candidateObjectiveMore summary {
+  cursor: pointer;
+  color: var(--text);
+  font-weight: 700;
+}
+
+.candidateObjectiveHelpSection {
+  margin-top: 7px;
+}
+
+.candidateObjectiveHelpSection strong {
+  color: var(--text);
+}
+
+.candidateObjectiveHelpSection ul {
+  margin: 4px 0 0;
+  padding-left: 18px;
+}
+
+.candidateObjectiveHelpSection li + li {
+  margin-top: 3px;
 }
 
 .candidateEmpty {
@@ -540,7 +613,7 @@ textarea {
   .objectiveHelpSection,
   .candidateProperties div,
   .candidateObjectiveHeader,
-  .candidateObjectiveRow {
+  .candidateObjectiveMain {
     grid-template-columns: 1fr;
     gap: 4px;
   }

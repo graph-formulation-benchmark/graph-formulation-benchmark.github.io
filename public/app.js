@@ -171,6 +171,61 @@
     return row ? `${row.id} ${row.name}` : String(id || "");
   }
 
+  function appendCompactBullets(parent, label, values) {
+    const items = compactList(values, 4);
+    if (!items.length) return;
+    const section = document.createElement("div");
+    section.className = "candidateObjectiveHelpSection";
+    const heading = document.createElement("strong");
+    heading.textContent = label;
+    section.appendChild(heading);
+    const list = document.createElement("ul");
+    items.forEach((item) => {
+      const li = document.createElement("li");
+      li.textContent = item;
+      list.appendChild(li);
+    });
+    section.appendChild(list);
+    parent.appendChild(section);
+  }
+
+  function renderObjectiveDetails(id) {
+    const row = objectiveById(id);
+    if (!row) return null;
+    const details = document.createElement("div");
+    details.className = "candidateObjectiveDetails";
+    if (row.definition) {
+      const definition = document.createElement("p");
+      definition.textContent = row.definition;
+      details.appendChild(definition);
+    }
+    if (Array.isArray(row.applicable_objects) && row.applicable_objects.length) {
+      const meta = document.createElement("div");
+      meta.className = "candidateObjectiveMeta";
+      const label = document.createElement("strong");
+      label.textContent = "Applicable objects";
+      meta.appendChild(label);
+      row.applicable_objects.forEach((objectLevel) => {
+        const chip = document.createElement("span");
+        chip.textContent = objectLevel;
+        meta.appendChild(chip);
+      });
+      details.appendChild(meta);
+    }
+    const cues = row.story_cues || {};
+    const more = document.createElement("details");
+    more.className = "candidateObjectiveMore";
+    const summary = document.createElement("summary");
+    summary.textContent = "Cues and boundary rules";
+    more.appendChild(summary);
+    appendCompactBullets(more, "Positive cues", cues.positive);
+    appendCompactBullets(more, "Negative cues", cues.negative);
+    appendCompactBullets(more, "Avoid confusing with", cues.avoid_phrases);
+    appendCompactBullets(more, "Boundary rules", row.boundary_rules);
+    if (more.children.length > 1) details.appendChild(more);
+    return details;
+  }
+
   function listText(value) {
     if (Array.isArray(value)) {
       return value.map((x) => String(x).trim()).filter(Boolean).join("; ");
@@ -271,15 +326,21 @@
       objectives.forEach((obj) => {
         const row = document.createElement("div");
         row.className = `candidateObjectiveRow${otherObjectives.has(objectiveSignature(obj)) ? "" : " candidateDiff"}`;
+        const main = document.createElement("div");
+        main.className = "candidateObjectiveMain";
         const label = document.createElement("span");
-        label.textContent = objectiveLabel(obj.l2_id || obj.objective_id);
+        const objectiveId = obj.l2_id || obj.objective_id;
+        label.textContent = objectiveLabel(objectiveId);
         const action = document.createElement("span");
         action.textContent = obj.action || "Not specified";
         const level = document.createElement("span");
         level.textContent = obj.object_level || "Not specified";
-        row.appendChild(label);
-        row.appendChild(action);
-        row.appendChild(level);
+        main.appendChild(label);
+        main.appendChild(action);
+        main.appendChild(level);
+        row.appendChild(main);
+        const details = renderObjectiveDetails(objectiveId);
+        if (details) row.appendChild(details);
         box.appendChild(row);
       });
       appendCandidateSection(container, "Objectives", box);
