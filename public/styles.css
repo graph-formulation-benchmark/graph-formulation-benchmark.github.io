@@ -267,7 +267,7 @@ button.primary, #submitBtn {
 .candidatePanel {
   border: 1px solid var(--line);
   border-radius: 8px;
-  background: #fbfcfe;
+  background: #ffffff;
   padding: 14px;
 }
 
@@ -283,11 +283,14 @@ button.primary, #submitBtn {
 
 .candidateSection {
   display: grid;
-  gap: 5px;
+  gap: 8px;
 }
 
 .candidateSection strong {
   color: var(--text);
+  font-size: 13px;
+  text-transform: uppercase;
+  letter-spacing: 0;
 }
 
 .candidateProperties,
@@ -297,15 +300,60 @@ button.primary, #submitBtn {
 }
 
 .candidateProperties div,
+.candidateObjectiveHeader,
 .candidateObjectiveRow {
   display: grid;
-  grid-template-columns: 118px minmax(0, 1fr);
+  grid-template-columns: 128px minmax(0, 1fr);
   gap: 8px;
+  align-items: start;
+  border: 1px solid var(--line);
+  border-radius: 6px;
+  padding: 8px 9px;
+  background: #f8fafc;
+}
+
+.candidateProperties div span:first-child,
+.candidateObjectiveHeader {
+  color: var(--muted);
+  font-weight: 700;
+}
+
+.candidateObjectiveHeader,
+.candidateObjectiveRow {
+  grid-template-columns: minmax(130px, 1.4fr) minmax(82px, 0.75fr) minmax(112px, 0.9fr);
+}
+
+.candidateObjectiveHeader {
+  border: 0;
+  background: transparent;
+  padding: 0 9px;
+  font-size: 12px;
 }
 
 .candidateEmpty {
   color: var(--muted);
   font-style: italic;
+}
+
+.candidateChips {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+}
+
+.candidateChip {
+  display: inline-flex;
+  align-items: center;
+  border: 1px solid var(--line);
+  border-radius: 999px;
+  background: #f8fafc;
+  padding: 4px 8px;
+  line-height: 1.2;
+}
+
+.candidateDiff {
+  border-color: #f59e0b !important;
+  background: #fffbeb !important;
 }
 
 .choiceGrid {
@@ -491,6 +539,7 @@ textarea {
   .exampleInputs div,
   .objectiveHelpSection,
   .candidateProperties div,
+  .candidateObjectiveHeader,
   .candidateObjectiveRow {
     grid-template-columns: 1fr;
     gap: 4px;

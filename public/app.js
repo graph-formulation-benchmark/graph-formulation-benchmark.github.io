@@ -178,6 +178,21 @@
     return String(value || "").trim();
   }
 
+  function normalizeCompareValue(value) {
+    if (Array.isArray(value)) {
+      return value.map((x) => String(x).trim().toLowerCase()).filter(Boolean).sort().join("|");
+    }
+    return String(value || "").trim().toLowerCase();
+  }
+
+  function objectiveSignature(obj) {
+    return [
+      obj?.l2_id || obj?.objective_id || "",
+      obj?.action || "",
+      obj?.object_level || ""
+    ].map((x) => String(x).trim().toLowerCase()).join("|");
+  }
+
   function appendCandidateSection(parent, title, content) {
     const section = document.createElement("div");
     section.className = "candidateSection";
@@ -195,19 +210,38 @@
     parent.appendChild(section);
   }
 
-  function renderCandidate(container, candidate) {
+  function renderChipList(values, otherValues = []) {
+    const items = Array.isArray(values) ? values.map((x) => String(x).trim()).filter(Boolean) : [];
+    if (!items.length) return null;
+    const other = new Set((Array.isArray(otherValues) ? otherValues : []).map((x) => String(x).trim().toLowerCase()).filter(Boolean));
+    const box = document.createElement("div");
+    box.className = "candidateChips";
+    items.forEach((item) => {
+      const chip = document.createElement("span");
+      chip.className = `candidateChip${other.has(item.toLowerCase()) ? "" : " candidateDiff"}`;
+      chip.textContent = item;
+      box.appendChild(chip);
+    });
+    return box;
+  }
+
+  function renderCandidate(container, candidate, otherCandidate = {}) {
     container.innerHTML = "";
     const gm = candidate?.graph_model || {};
+    const otherGm = otherCandidate?.graph_model || {};
     const properties = document.createElement("div");
     properties.className = "candidateProperties";
     [
-      ["Direction", gm.direction],
-      ["Weighting", gm.weighting],
-      ["Time model", gm.time_model],
-      ["Node meaning", listText(gm.node_meaning)],
-      ["Edge meaning", listText(gm.edge_meaning)]
-    ].forEach(([label, value]) => {
+      ["Direction", gm.direction, otherGm.direction],
+      ["Weighting", gm.weighting, otherGm.weighting],
+      ["Time model", gm.time_model, otherGm.time_model],
+      ["Node meaning", gm.node_meaning, otherGm.node_meaning],
+      ["Edge meaning", gm.edge_meaning, otherGm.edge_meaning]
+    ].forEach(([label, rawValue, otherRawValue]) => {
+      const value = listText(rawValue);
+      const differs = normalizeCompareValue(rawValue) !== normalizeCompareValue(otherRawValue);
       const row = document.createElement("div");
+      row.className = differs ? "candidateDiff" : "";
       const key = document.createElement("span");
       key.textContent = label;
       const val = document.createElement("span");
@@ -219,22 +253,33 @@
     });
     appendCandidateSection(container, "Graph model", properties);
 
-    const operations = listText(candidate?.operations || []);
-    appendCandidateSection(container, "Operations", operations ? document.createTextNode(operations) : null);
+    appendCandidateSection(container, "Operations", renderChipList(candidate?.operations || [], otherCandidate?.operations || []));
 
     const objectives = Array.isArray(candidate?.objectives) ? candidate.objectives : [];
     if (objectives.length) {
       const box = document.createElement("div");
       box.className = "candidateObjectives";
+      const header = document.createElement("div");
+      header.className = "candidateObjectiveHeader";
+      ["Objective", "Action", "Object level"].forEach((text) => {
+        const cell = document.createElement("span");
+        cell.textContent = text;
+        header.appendChild(cell);
+      });
+      box.appendChild(header);
+      const otherObjectives = new Set((Array.isArray(otherCandidate?.objectives) ? otherCandidate.objectives : []).map(objectiveSignature));
       objectives.forEach((obj) => {
         const row = document.createElement("div");
-        row.className = "candidateObjectiveRow";
+        row.className = `candidateObjectiveRow${otherObjectives.has(objectiveSignature(obj)) ? "" : " candidateDiff"}`;
         const label = document.createElement("span");
         label.textContent = objectiveLabel(obj.l2_id || obj.objective_id);
-        const detail = document.createElement("span");
-        detail.textContent = [obj.action, obj.object_level].filter(Boolean).join(" / ");
+        const action = document.createElement("span");
+        action.textContent = obj.action || "Not specified";
+        const level = document.createElement("span");
+        level.textContent = obj.object_level || "Not specified";
         row.appendChild(label);
-        row.appendChild(detail);
+        row.appendChild(action);
+        row.appendChild(level);
         box.appendChild(row);
       });
       appendCandidateSection(container, "Objectives", box);
@@ -399,8 +444,8 @@
     if (isFormulationAb()) {
       $("#responseForm").classList.add("hidden");
       $("#abResponseForm").classList.remove("hidden");
-      renderCandidate($("#candidateA"), item.candidate_A || {});
-      renderCandidate($("#candidateB"), item.candidate_B || {});
+      renderCandidate($("#candidateA"), item.candidate_A || {}, item.candidate_B || {});
+      renderCandidate($("#candidateB"), item.candidate_B || {}, item.candidate_A || {});
       document.querySelectorAll("[name=preferred_candidate]").forEach((input) => {
         input.checked = response.preferred_candidate === input.value;
       });
