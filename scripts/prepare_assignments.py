@@ -140,15 +140,15 @@ def main() -> int:
         by_annotator.setdefault(annotator, []).append(item_id)
 
     token_rows: List[Dict[str, str]] = []
-    seed_sql = [
-        "-- Generated assignment tokens. Run after supabase_schema.sql.",
-        "insert into study_tokens (token_hash, annotator_id, assignment_id, active) values",
-    ]
+    seed_sql = ["-- Generated assignment tokens. Run after supabase_schema.sql."]
+    if args.phase:
+        seed_sql.append(f"update study_tokens set active = false where assignment_id like {sql_literal(args.phase + '_%')};")
+    seed_sql.append("insert into study_tokens (token_hash, annotator_id, assignment_id, active) values")
     values: List[str] = []
-    assignment_seed_sql = [
-        "-- Generated assignment payloads. Run after supabase_seed_tokens.sql.",
-        "insert into survey_assignments (token_hash, assignment_json, active) values",
-    ]
+    assignment_seed_sql = ["-- Generated assignment payloads. Run after supabase_seed_tokens.sql."]
+    if args.phase:
+        assignment_seed_sql.append(f"update survey_assignments set active = false where assignment_json->>'phase' = {sql_literal(args.phase)};")
+    assignment_seed_sql.append("insert into survey_assignments (token_hash, assignment_json, active) values")
     assignment_values: List[str] = []
     for annotator in sorted(by_annotator):
         selected = by_annotator[annotator][: args.max_items_per_annotator]
