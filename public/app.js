@@ -674,7 +674,29 @@
       if (isFormulationAb()) {
         document.querySelector("h1").textContent = "Graph Formulation A/B Review";
         document.querySelector(".tutorialPanel summary").textContent = "How to complete this task";
-        document.querySelector(".tutorialBody > p").textContent = "Read the story and compare Candidate A and Candidate B. Choose the formulation that is better supported by the story, or choose Tie if they are similarly supported.";
+        document.querySelector(".tutorialBody").innerHTML = `
+          <p>Read the story and compare Candidate A and Candidate B. Choose the formulation that is better supported by the story, or choose Tie if they are similarly supported.</p>
+          <div class="tutorialGrid">
+            <div>
+              <h4>What to compare</h4>
+              <ul>
+                <li>Graph properties: direction, weighting, and static versus dynamic.</li>
+                <li>Node and edge meanings in the story's domain language.</li>
+                <li>Allowed operations implied by the story.</li>
+                <li>Objective rows: objective, action, and object level.</li>
+              </ul>
+            </div>
+            <div>
+              <h4>How to decide</h4>
+              <ul>
+                <li>Use only the story text and the objective definitions shown in the candidates.</li>
+                <li>Highlighted rows show where A and B differ; focus on whether those differences are supported by the story.</li>
+                <li>Select Tie when both candidates are equally plausible or equally unsupported.</li>
+                <li>Do not use external resources or LLM tools.</li>
+              </ul>
+            </div>
+          </div>
+        `;
       }
       $("#app").classList.remove("hidden");
       setStatus(state.supabase ? "Ready; Supabase enabled" : "Ready; export fallback only");
