@@ -3,6 +3,7 @@ from __future__ import annotations
 
 import argparse
 import csv
+import shutil
 import hashlib
 import json
 import secrets
@@ -92,6 +93,12 @@ def token_hash(token: str) -> str:
 
 def sql_literal(value: str) -> str:
     return "'" + value.replace("'", "''") + "'"
+
+
+def reset_dir(path: Path) -> None:
+    if path.exists():
+        shutil.rmtree(path)
+    path.mkdir(parents=True, exist_ok=True)
 
 
 def parse_args() -> argparse.Namespace:
@@ -220,6 +227,20 @@ def main() -> int:
     else:
         assignment_seed_sql.append("-- no assignment payloads generated")
     (private / "supabase_seed_assignments.sql").write_text("\n".join(assignment_seed_sql) + "\n", encoding="utf-8")
+    parts_dir = private / "supabase_seed_assignments_parts"
+    reset_dir(parts_dir)
+    deactivate_lines = ["-- Run this first, after supabase_seed_tokens.sql."]
+    for phase in phases:
+        deactivate_lines.append(f"update survey_assignments set active = false where assignment_json->>'phase' = {sql_literal(phase)};")
+    (parts_dir / "part_000_deactivate_old_assignments.sql").write_text("\n".join(deactivate_lines) + "\n", encoding="utf-8")
+    for idx, value in enumerate(assignment_values, start=1):
+        sql = (
+            "-- Run after part_000_deactivate_old_assignments.sql.\n"
+            "insert into survey_assignments (token_hash, assignment_json, active) values\n"
+            f"{value}\n"
+            "on conflict (token_hash) do update set assignment_json = excluded.assignment_json, active = excluded.active;\n"
+        )
+        (parts_dir / f"part_{idx:03d}.sql").write_text(sql, encoding="utf-8")
     print(f"Generated {len(token_rows)} tokenized assignments in {out}")
     return 0
 
