@@ -253,6 +253,37 @@ button.primary, #submitBtn {
   max-width: 920px;
 }
 
+.bilingualText {
+  display: grid;
+  gap: 12px;
+}
+
+.translationBlock,
+.sourceBlock {
+  white-space: pre-wrap;
+  line-height: 1.58;
+}
+
+.translationBlock {
+  color: var(--text);
+}
+
+.sourceBlock {
+  color: var(--muted);
+}
+
+.sourceDetails {
+  border-top: 1px solid var(--line);
+  padding-top: 8px;
+}
+
+.sourceDetails summary {
+  cursor: pointer;
+  color: var(--muted);
+  font-weight: 700;
+  margin-bottom: 8px;
+}
+
 .formPanel {
   display: grid;
   gap: 22px;
@@ -471,6 +502,29 @@ button.primary, #submitBtn {
 
 .choiceGrid input {
   width: auto;
+}
+
+.aspectGrid {
+  display: grid;
+  gap: 12px;
+}
+
+.aspectQuestion {
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  padding: 12px;
+  background: #f8fafc;
+}
+
+.aspectQuestion legend {
+  font-weight: 700;
+  padding: 0 4px;
+}
+
+.aspectQuestion p {
+  color: var(--muted);
+  margin: 2px 0 10px;
+  line-height: 1.45;
 }
 
 .controlGrid {

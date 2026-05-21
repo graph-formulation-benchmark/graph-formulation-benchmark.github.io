@@ -10,6 +10,12 @@
   };
 
   const $ = (selector) => document.querySelector(selector);
+  const STORY_QUALITY_FIELDS = [
+    "naturalness_preference",
+    "coherence_preference",
+    "domain_realism_preference",
+    "preferred_story"
+  ];
 
   function surveyPhase() {
     return state.assignment?.phase || "blind_recovery";
@@ -237,6 +243,29 @@
     return String(value || "").trim();
   }
 
+  function renderBilingualText(container, koreanText, englishText) {
+    container.innerHTML = "";
+    const box = document.createElement("div");
+    box.className = "bilingualText";
+    const ko = document.createElement("div");
+    ko.className = "translationBlock";
+    ko.textContent = koreanText || englishText || "";
+    box.appendChild(ko);
+    if (englishText && koreanText && englishText !== koreanText) {
+      const details = document.createElement("details");
+      details.className = "sourceDetails";
+      const summary = document.createElement("summary");
+      summary.textContent = "English original";
+      const en = document.createElement("div");
+      en.className = "sourceBlock";
+      en.textContent = englishText;
+      details.appendChild(summary);
+      details.appendChild(en);
+      box.appendChild(details);
+    }
+    container.appendChild(box);
+  }
+
   function normalizeCompareValue(value) {
     if (Array.isArray(value)) {
       return value.map((x) => String(x).trim().toLowerCase()).filter(Boolean).sort().join("|");
@@ -286,34 +315,6 @@
 
   function renderCandidate(container, candidate, otherCandidate = {}) {
     container.innerHTML = "";
-    const gm = candidate?.graph_model || {};
-    const otherGm = otherCandidate?.graph_model || {};
-    const properties = document.createElement("div");
-    properties.className = "candidateProperties";
-    [
-      ["Direction", gm.direction, otherGm.direction],
-      ["Weighting", gm.weighting, otherGm.weighting],
-      ["Time model", gm.time_model, otherGm.time_model],
-      ["Node meaning", gm.node_meaning, otherGm.node_meaning],
-      ["Edge meaning", gm.edge_meaning, otherGm.edge_meaning]
-    ].forEach(([label, rawValue, otherRawValue]) => {
-      const value = listText(rawValue);
-      const differs = normalizeCompareValue(rawValue) !== normalizeCompareValue(otherRawValue);
-      const row = document.createElement("div");
-      row.className = differs ? "candidateDiff" : "";
-      const key = document.createElement("span");
-      key.textContent = label;
-      const val = document.createElement("span");
-      val.textContent = value || "Not specified";
-      if (!value) val.className = "candidateEmpty";
-      row.appendChild(key);
-      row.appendChild(val);
-      properties.appendChild(row);
-    });
-    appendCandidateSection(container, "Graph model", properties);
-
-    appendCandidateSection(container, "Operations", renderChipList(candidate?.operations || [], otherCandidate?.operations || []));
-
     const objectives = Array.isArray(candidate?.objectives) ? candidate.objectives : [];
     if (objectives.length) {
       const box = document.createElement("div");
@@ -347,9 +348,9 @@
         if (details) row.appendChild(details);
         box.appendChild(row);
       });
-      appendCandidateSection(container, "Objectives", box);
+      appendCandidateSection(container, "Objective set", box);
     } else {
-      appendCandidateSection(container, "Objectives", null);
+      appendCandidateSection(container, "Objective set", null);
     }
   }
 
@@ -411,6 +412,9 @@
         assignment_id: state.assignment.assignment_id,
         story_quality_pair_id: item.story_quality_pair_id,
         preferred_story: "",
+        naturalness_preference: "",
+        coherence_preference: "",
+        domain_realism_preference: "",
         submitted: false,
         submitted_at: ""
       };
@@ -534,7 +538,7 @@
     const response = currentResponse();
     $("#itemTitle").textContent = itemKey(item);
     $("#itemSubhead").textContent = "";
-    $("#storyText").textContent = item.story_text;
+    renderBilingualText($("#storyText"), item.story_text_ko || "", item.story_text || "");
 
     if (isFormulationAb()) {
       $("#singleStoryPanel").classList.remove("hidden");
@@ -558,10 +562,12 @@
       $("#storyQualityForm").classList.remove("hidden");
       $("#storyQualityInstructions").textContent = item.instructions || "";
       renderStoryQualityContext(item);
-      $("#storyA").textContent = item.story_A || "";
-      $("#storyB").textContent = item.story_B || "";
-      document.querySelectorAll("[name=preferred_story]").forEach((input) => {
-        input.checked = response.preferred_story === input.value;
+      renderBilingualText($("#storyA"), item.story_A_ko || "", item.story_A || "");
+      renderBilingualText($("#storyB"), item.story_B_ko || "", item.story_B || "");
+      STORY_QUALITY_FIELDS.forEach((field) => {
+        document.querySelectorAll(`[name=${field}]`).forEach((input) => {
+          input.checked = response[field] === input.value;
+        });
       });
       renderItemList();
       renderProgress();
@@ -623,8 +629,10 @@
     }
     if (isStoryQualityAb()) {
       const response = currentResponse();
-      const checked = document.querySelector("[name=preferred_story]:checked");
-      response.preferred_story = checked ? checked.value : "";
+      STORY_QUALITY_FIELDS.forEach((field) => {
+        const checked = document.querySelector(`[name=${field}]:checked`);
+        response[field] = checked ? checked.value : "";
+      });
       state.responses[itemKey(item)] = response;
       saveLocalResponses();
       return;
@@ -648,7 +656,10 @@
         annotator_id: response.annotator_id || state.assignment.annotator_id,
         assignment_id: response.assignment_id || state.assignment.assignment_id,
         story_quality_pair_id: response.story_quality_pair_id || "",
-        preferred_story: response.preferred_story || ""
+        preferred_story: response.preferred_story || "",
+        naturalness_preference: response.naturalness_preference || "",
+        coherence_preference: response.coherence_preference || "",
+        domain_realism_preference: response.domain_realism_preference || ""
       };
     }
     if (response.formulation_pair_id) {
@@ -713,6 +724,12 @@
     if (isStoryQualityAb() && !response.preferred_story) {
       setStatus("Choose Story A, Story B, or Tie before submitting");
       return;
+    }
+    if (isStoryQualityAb()) {
+      if (STORY_QUALITY_FIELDS.some((field) => !response[field])) {
+        setStatus("Answer every story-quality overall and aspect question before submitting");
+        return;
+      }
     }
     response.submitted = true;
     response.submitted_at = new Date().toISOString();
@@ -831,10 +848,9 @@
             <div>
               <h4>What to compare</h4>
               <ul>
-                <li>Graph properties: direction, weighting, and static versus dynamic.</li>
-                <li>Node and edge meanings in the story's domain language.</li>
-                <li>Allowed operations implied by the story.</li>
-                <li>Objective rows: objective, action, and object level.</li>
+                <li>Only the objective rows: objective, action, and object level.</li>
+                <li>Both candidates have the same number of objectives.</li>
+                <li>Highlighted rows show objective differences between A and B.</li>
               </ul>
             </div>
             <div>

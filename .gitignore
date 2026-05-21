@@ -1,6 +1,9 @@
 private/assignment_tokens.csv
 private/supabase_seed_assignments.sql
 private/supabase_seed_tokens.sql
+private/supabase_seed_assignments_parts/
+private/logs/
+private/link_distribution_full150.csv
 public/data/assignments/*.json
 __pycache__/
 *.py[cod]

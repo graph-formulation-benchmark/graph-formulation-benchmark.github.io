@@ -136,8 +136,41 @@
           </section>
 
           <section>
-            <h3>Which story is better as a benchmark item?</h3>
-            <div class="choiceGrid">
+            <h3>Aspect checks</h3>
+            <div class="aspectGrid">
+              <fieldset class="aspectQuestion">
+                <legend>Naturalness and readability</legend>
+                <p>Which story reads more naturally and avoids awkward or keyword-stuffed language?</p>
+                <div class="choiceGrid storyQualityChoices" data-response-field="naturalness_preference">
+                  <label><input type="radio" name="naturalness_preference" value="A" /> Story A</label>
+                  <label><input type="radio" name="naturalness_preference" value="B" /> Story B</label>
+                  <label><input type="radio" name="naturalness_preference" value="Tie" /> Tie</label>
+                </div>
+              </fieldset>
+              <fieldset class="aspectQuestion">
+                <legend>Internal coherence</legend>
+                <p>Which story is more internally consistent and easier to follow?</p>
+                <div class="choiceGrid storyQualityChoices" data-response-field="coherence_preference">
+                  <label><input type="radio" name="coherence_preference" value="A" /> Story A</label>
+                  <label><input type="radio" name="coherence_preference" value="B" /> Story B</label>
+                  <label><input type="radio" name="coherence_preference" value="Tie" /> Tie</label>
+                </div>
+              </fieldset>
+              <fieldset class="aspectQuestion">
+                <legend>Domain realism</legend>
+                <p>Which story is more plausible for the stated domain and requested format?</p>
+                <div class="choiceGrid storyQualityChoices" data-response-field="domain_realism_preference">
+                  <label><input type="radio" name="domain_realism_preference" value="A" /> Story A</label>
+                  <label><input type="radio" name="domain_realism_preference" value="B" /> Story B</label>
+                  <label><input type="radio" name="domain_realism_preference" value="Tie" /> Tie</label>
+                </div>
+              </fieldset>
+            </div>
+          </section>
+
+          <section>
+            <h3>Overall: which story is better as a benchmark item?</h3>
+            <div class="choiceGrid storyQualityChoices" data-response-field="preferred_story">
               <label><input type="radio" name="preferred_story" value="A" /> Story A</label>
               <label><input type="radio" name="preferred_story" value="B" /> Story B</label>
               <label><input type="radio" name="preferred_story" value="Tie" /> Tie / no meaningful difference</label>

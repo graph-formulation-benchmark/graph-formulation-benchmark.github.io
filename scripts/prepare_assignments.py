@@ -63,7 +63,9 @@ def public_assignment_item(row: Dict[str, Any], phase: str) -> Dict[str, Any]:
             "requested_genre": row.get("requested_genre", ""),
             "context": row.get("context", {}),
             "story_A": row.get("story_A", ""),
+            "story_A_ko": row.get("story_A_ko", ""),
             "story_B": row.get("story_B", ""),
+            "story_B_ko": row.get("story_B_ko", ""),
             "instructions": row.get("instructions", "Read both stories and choose which is better as a benchmark item."),
         }
     if phase == "formulation_ab":
@@ -71,6 +73,7 @@ def public_assignment_item(row: Dict[str, Any], phase: str) -> Dict[str, Any]:
             "formulation_pair_id": row.get("formulation_pair_id", ""),
             "human_item_id": row.get("human_item_id", ""),
             "story_text": row.get("story_text", ""),
+            "story_text_ko": row.get("story_text_ko", ""),
             "candidate_A": row.get("candidate_A", {}),
             "candidate_B": row.get("candidate_B", {}),
             "instructions": row.get("instructions", "Read the story and choose which candidate formulation is better supported."),
@@ -85,6 +88,17 @@ def public_assignment_item(row: Dict[str, Any], phase: str) -> Dict[str, Any]:
 def read_assignment_rows(path: Path) -> List[Dict[str, str]]:
     with path.open("r", encoding="utf-8", newline="") as f:
         return list(csv.DictReader(f))
+
+
+def read_existing_tokens(path: Path) -> Dict[str, str]:
+    if not path.exists():
+        return {}
+    with path.open("r", encoding="utf-8", newline="") as f:
+        return {
+            str(row.get("assignment_id", "")): str(row.get("token", ""))
+            for row in csv.DictReader(f)
+            if row.get("assignment_id") and row.get("token")
+        }
 
 
 def token_hash(token: str) -> str:
@@ -169,6 +183,7 @@ def main() -> int:
         by_phase_annotator[phase].setdefault(annotator, []).append(item_id)
 
     token_rows: List[Dict[str, str]] = []
+    existing_tokens = read_existing_tokens(private / "assignment_tokens.csv")
     seed_sql = ["-- Generated assignment tokens. Run after supabase_schema.sql."]
     for phase in phases:
         seed_sql.append(f"update study_tokens set active = false where assignment_id like {sql_literal(phase + '_%')};")
@@ -182,8 +197,8 @@ def main() -> int:
     for phase in phases:
         for annotator in sorted(by_phase_annotator[phase]):
             selected = by_phase_annotator[phase][annotator][: args.max_items_per_annotator]
-            token = secrets.token_urlsafe(18)
             assignment_id = f"{phase}_{annotator}"
+            token = existing_tokens.get(assignment_id) or secrets.token_urlsafe(18)
             payload = {
                 "assignment_id": assignment_id,
                 "annotator_id": annotator,
